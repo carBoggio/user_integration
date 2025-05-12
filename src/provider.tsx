@@ -8,7 +8,7 @@ import { WagmiProvider, http } from 'wagmi'
 import { mainnet } from 'wagmi/chains'
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
-
+import { megaEth } from "./components/Chains";
 
 declare module "@react-types/shared" {
   interface RouterConfig {
@@ -19,10 +19,11 @@ declare module "@react-types/shared" {
 
  const config = getDefaultConfig({
    appName: 'RainbowKit demo',
-   projectId: 'YOUR_PROJECT_ID',
-   chains: [mainnet],
+   projectId: import.meta.env.VITE_PROJECT_ID || '',
+   chains: [megaEth, mainnet],
    transports: {
-     [mainnet.id]: http(),
+    [mainnet.id]: http(),
+    [megaEth.id]: http('https://carrot.megaeth.com/rpc'), // Añade transporte para megaEth
    },
  })
 
