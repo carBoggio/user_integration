@@ -27,7 +27,14 @@ declare module "@react-types/shared" {
    },
  })
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // Desactivar refresco al cambiar de ventana (opcional)
+      retry: 1, // Intentar una vez más si falla una consulta (opcional)
+    },
+  },
+});
 
 
 
