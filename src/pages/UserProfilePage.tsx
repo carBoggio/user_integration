@@ -11,29 +11,36 @@ import {
   Button,
   Spinner,
   Tab,
-  Tabs
+  Tabs,
+  Badge
 } from "@heroui/react";
 import { useNavigate } from "react-router-dom";
-import { Clock, ExternalLink, Mail, Ticket, Gift } from "lucide-react";
+import { Clock, ExternalLink, Mail, Ticket, Gift, Award, CheckCircle, XCircle, Wallet } from "lucide-react";
 import DefaultLayout from "@/layouts/default";
-import { useGetUser } from "@/actions/getUser";
 import { useTheme } from "@/providers/themeProvider";
 import { calculateTimeLeft } from "@/components/Raffle";
 import { useGetUserLotteryNumbers } from "@/actions/getUserLotteryNumbers";
+import { useAccount, useConnect, useDisconnect, useEnsName } from 'wagmi';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 export default function UserProfilePage() {
   const { getUserLotteryNumbers, tickets: lotteryTickets, lotteryResult, isLoading: isLoadingTickets, error: ticketsError } = useGetUserLotteryNumbers();
-  const { getUser, user, isLoading: isLoadingUser, error: userError } = useGetUser();
   const navigate = useNavigate();
   const { theme } = useTheme();
   const isDarkMode = theme === 'dark';
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
+  // Rainbow Kit wallet connection
+  const { address, isConnected } = useAccount();
+  const { data: ensName } = useEnsName({ address });
+  const { disconnect } = useDisconnect();
+
   useEffect(() => {
-    // Cargar datos de usuario y tickets al montar el componente
-    getUser();
-    getUserLotteryNumbers();
-  }, []);
+    // Only load tickets if wallet is connected
+    if (isConnected) {
+      getUserLotteryNumbers();
+    }
+  }, [isConnected]);
 
   useEffect(() => {
     if (!lotteryResult || lotteryResult.hasEnded) return;
@@ -62,7 +69,43 @@ export default function UserProfilePage() {
     });
   };
   
+  // Get appropriate color and text for match category
+  const getMatchCategoryInfo = (matchCategory: number | undefined) => {
+    if (matchCategory === undefined) return { color: "default", text: "No matches" };
+    
+    switch(matchCategory) {
+      case 0:
+        return { color: "danger", text: "No matches" };
+      case 1:
+        return { color: "warning", text: "Match 1" };
+      case 2:
+        return { color: "warning", text: "Match 2" };
+      case 3:
+        return { color: "success", text: "Match 3" };
+      case 4:
+        return { color: "success", text: "Match 4" };
+      case 5:
+        return { color: "primary", text: "Match 5" };
+      case 6:
+        return { color: "secondary", text: "Jackpot!" };
+      default:
+        return { color: "default", text: "Unknown" };
+    }
+  };
+  
   const hasLotteryTickets = lotteryTickets.length > 0;
+
+  // Shortened wallet address display
+  const shortenAddress = (address: string | undefined) => {
+    if (!address) return '';
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+  
+  // Generate avatar URL from address using Ethereum avatar service
+  const getAvatarUrl = (address: string | undefined) => {
+    if (!address) return '';
+    return `https://effigy.im/a/${address}.svg`;
+  };
 
   return (
     <DefaultLayout>
@@ -75,47 +118,48 @@ export default function UserProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Sección del perfil - 1/4 del ancho en escritorio */}
           <div className="md:col-span-1">
-            {isLoadingUser ? (
-              <Card className="p-4">
-                <div className="flex flex-col items-center text-center">
-                  <Skeleton className="w-24 h-24 rounded-full mb-4" />
-                  <Skeleton className="w-32 h-6 rounded-lg mb-2" />
-                  <Skeleton className="w-24 h-4 rounded-lg mb-1" />
-                  <Skeleton className="w-28 h-4 rounded-lg" />
-                </div>
-              </Card>
-            ) : user ? (
+            {isConnected ? (
               <Card className="p-4">
                 <div className="flex flex-col items-center text-center">
                   <Avatar 
-                    src={user.avatar} 
+                    src={getAvatarUrl(address)} 
                     size="lg" 
                     className="w-24 h-24 mb-4"
                   />
-                  <h2 className="text-xl font-bold">{user.name}</h2>
-                  <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                    {user.walletAddress}
+                  <h2 className="text-xl font-bold">{ensName || shortenAddress(address)}</h2>
+                  <p className={`text-sm break-all ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {address}
                   </p>
-                  {user.email && (
-                    <p className={`text-sm mt-2 flex items-center justify-center gap-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                      <Mail size={14} /> {user.email}
-                    </p>
-                  )}
-                  <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    Member since {user.memberSince}
-                  </p>
+                  
+                  <div className="mt-4 flex gap-2">
+                    <Button 
+                      size="sm" 
+                      color="danger"
+                      variant="flat"
+                      onPress={() => disconnect()}
+                    >
+                      Disconnect
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      color="primary"
+                      variant="flat"
+                      onPress={() => goToLottery()}
+                      startContent={<Ticket size={14} />}
+                    >
+                      Buy Tickets
+                    </Button>
+                  </div>
                 </div>
               </Card>
             ) : (
-              <Card className="p-4 text-center">
-                <p className="text-danger mb-2">Failed to load user data</p>
-                <Button 
-                  size="sm" 
-                  variant="light" 
-                  onPress={() => getUser()}
-                >
-                  Retry
-                </Button>
+              <Card className="p-8 text-center">
+                <div className="flex flex-col items-center">
+                  <Wallet size={48} className="text-gray-400 mb-4" />
+                  <p className="text-xl font-semibold mb-4">Connect Your Wallet</p>
+                  <p className="text-default-500 mb-6">Connect your wallet to view your profile and tickets</p>
+                  <ConnectButton />
+                </div>
               </Card>
             )}
           </div>
@@ -129,7 +173,16 @@ export default function UserProfilePage() {
               </h2>
             </div>
 
-            {isLoadingTickets ? (
+            {!isConnected ? (
+              <Card className="p-8 text-center">
+                <div className="flex flex-col items-center">
+                  <Ticket size={48} className="text-gray-400 mb-4" />
+                  <p className="text-xl font-semibold mb-4">Connect Wallet to View Tickets</p>
+                  <p className="text-default-500 mb-6">Your lottery tickets will appear here after connecting your wallet</p>
+                  <ConnectButton />
+                </div>
+              </Card>
+            ) : isLoadingTickets ? (
               <div className="space-y-4">
                 {[...Array(3)].map((_, i) => (
                   <Skeleton key={i} className="rounded-lg w-full">
@@ -158,88 +211,131 @@ export default function UserProfilePage() {
                   </Card>
                 )}
                 
-                {lotteryTickets.map((ticket) => (
-                  <Card key={ticket.id} className="overflow-hidden">
-                    <div className="p-4">
-                      <div className="flex justify-between">
-                        <h3 className="text-xl font-bold mb-2">MegaLucky Lottery</h3>
-                        <Chip
-                          color="secondary"
-                          variant="flat"
-                          size="sm"
-                        >
-                          Lottery
-                        </Chip>
-                      </div>
-                      
-                      <div className="flex items-center text-sm mb-3">
-                        <Clock size={16} className="mr-1" />
-                        <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                          Draw date: {formatDate(ticket.drawDate)}
-                        </span>
-                      </div>
-                      
-                      <Divider className="my-3" />
-                      
-                      <div className="mb-3">
-                        <p className="text-sm font-semibold mb-2">Your lottery numbers:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {ticket.ticketNumbers.map(number => (
-                            <Chip 
-                              key={number} 
-                              className={
-                                lotteryResult.hasEnded
-                                  ? lotteryResult.winningNumbers?.includes(number)
-                                    ? "bg-green-500 text-white"
-                                    : "bg-yellow-500 text-white"
-                                  : "bg-purple-500 text-white"
-                              }
+                {lotteryTickets.map((ticket) => {
+                  const matchInfo = getMatchCategoryInfo(ticket.matchCategory);
+                  
+                  return (
+                    <Card key={ticket.id} className="overflow-hidden">
+                      <div className="p-4">
+                        <div className="flex justify-between">
+                          <h3 className="text-xl font-bold mb-2">MegaLucky Lottery</h3>
+                          <div className="flex gap-2">
+                            <Chip
+                              color="secondary"
+                              variant="flat"
+                              size="sm"
                             >
-                              {number}
+                              Lottery
                             </Chip>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      {lotteryResult.hasEnded && lotteryResult.winningNumbers && (
-                        <div className="mb-3">
-                          <p className="text-sm font-semibold mb-2">Winning numbers:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {lotteryResult.winningNumbers.map(number => (
-                              <Chip 
-                                key={number} 
-                                className="bg-green-500 text-white"
+                            
+                            {lotteryResult.hasEnded && (
+                              <Chip
+                                color={matchInfo.color as any}
+                                variant="solid"
+                                size="sm"
                               >
-                                {number}
+                                {matchInfo.text}
                               </Chip>
-                            ))}
+                            )}
                           </div>
                         </div>
-                      )}
-                      
-                      <div className="flex items-center justify-between mt-auto pt-2">
-                        <div className="text-sm">
-                          <span className={`font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                            Purchased:
-                          </span>{" "}
-                          <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                            {formatDate(ticket.purchaseDate)}
+                        
+                        <div className="flex items-center text-sm mb-3">
+                          <Clock size={16} className="mr-1" />
+                          <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                            Draw date: {formatDate(ticket.drawDate)}
                           </span>
                         </div>
                         
-                        <Button
-                          size="sm"
-                          variant="light"
-                          color="primary"
-                          endContent={<ExternalLink size={14} />}
-                          onPress={() => goToLottery()}
-                        >
-                          View Lottery
-                        </Button>
+                        <Divider className="my-3" />
+                        
+                        <div className="mb-3">
+                          <p className="text-sm font-semibold mb-2">Your lottery numbers:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {ticket.ticketNumbers.map((number, index) => {
+                              // Check if this number matches winning number at same position
+                              const isMatch = lotteryResult.hasEnded && 
+                                lotteryResult.winningNumbers && 
+                                lotteryResult.winningNumbers[index] === number;
+                                
+                              // Find the index of the first mismatch
+                              const firstMismatchIndex = lotteryResult.hasEnded && lotteryResult.winningNumbers ? 
+                                ticket.ticketNumbers.findIndex((num, idx) => num !== lotteryResult.winningNumbers![idx]) : -1;
+                              
+                              // Determine color based on matching state
+                              let chipColor;
+                              if (!lotteryResult.hasEnded) {
+                                chipColor = "bg-purple-500 text-white"; // Default for active lottery
+                              } else if (isMatch) {
+                                chipColor = "bg-green-500 text-white"; // Matching numbers
+                              } else if (firstMismatchIndex !== -1 && index < firstMismatchIndex) {
+                                chipColor = "bg-yellow-500 text-white"; // Numbers before first mismatch
+                              } else if (firstMismatchIndex !== -1 && index > firstMismatchIndex) {
+                                chipColor = "bg-blue-500 text-white"; // Numbers after first mismatch
+                              } else {
+                                chipColor = "bg-yellow-500 text-white"; // First mismatch (typically yellow)
+                              }
+                              
+                              return (
+                                <div key={index} className="relative">
+                                  <Chip 
+                                    className={chipColor}
+                                  >
+                                    {number}
+                                  </Chip>
+                                  {lotteryResult.hasEnded && (
+                                    <span className="absolute -top-1 -right-1">
+                                      {isMatch ? 
+                                        <CheckCircle size={12} className="text-green-500 bg-white rounded-full" /> : 
+                                        <XCircle size={12} className="text-red-500 bg-white rounded-full" />}
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                        
+                        {lotteryResult.hasEnded && lotteryResult.winningNumbers && (
+                          <div className="mb-3">
+                            <p className="text-sm font-semibold mb-2">Winning numbers:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {lotteryResult.winningNumbers.map((number, index) => (
+                                <Chip 
+                                  key={index} 
+                                  className="bg-green-500 text-white"
+                                >
+                                  {number}
+                                </Chip>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        <div className="flex items-center justify-between mt-auto pt-2">
+                          <div className="text-sm">
+                            <span className={`font-semibold ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              Purchased:
+                            </span>{" "}
+                            <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                              {formatDate(ticket.purchaseDate)}
+                            </span>
+                          </div>
+                          
+                          <Button
+                            size="sm"
+                            variant="light"
+                            color="primary"
+                            endContent={<ExternalLink size={14} />}
+                            onPress={() => goToLottery()}
+                          >
+                            View Lottery
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  );
+                })}
               </div>
             ) : (
               <Card className="p-8 text-center">
@@ -258,7 +354,7 @@ export default function UserProfilePage() {
               </Card>
             )}
 
-            {ticketsError && (
+            {isConnected && ticketsError && (
               <Card className="p-8 text-center">
                 <p className="text-danger mb-4">Error loading your tickets</p>
                 <Button 

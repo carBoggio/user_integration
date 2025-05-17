@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useGetRaffle } from "@/actions/getRaffle";
+import { useGenLotteryByUser } from "@/actions/genLoteryByUser";
 import { 
   Card, 
   CardHeader, 
@@ -15,7 +16,8 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
-  useDisclosure
+  useDisclosure,
+  Input
 } from "@heroui/react";
 import { 
   Clock, 
@@ -25,7 +27,9 @@ import {
   TrendingUp, 
   CheckCircle,
   HelpCircle,
-  Info
+  Info,
+  AlertCircle,
+  X
 } from "lucide-react";
 import { formatDistance } from "date-fns";
 import DefaultLayout from "@/layouts/default";
@@ -34,20 +38,36 @@ import { calculateTimeLeft } from "@/components/Raffle";
 import { useLocation } from "react-router-dom";
 
 const LotteryPage = () => {
-  const { getRaffle, buyCustomTicket, buyRandomTickets, raffle, extraData, isLoading, error } = useGetRaffle();
-  const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
+  const { getRaffle, raffle, extraData, isLoading: isLoadingRaffle, error: raffleError } = useGetRaffle();
+  const { 
+    getLotteryByUser, 
+    isSequencePurchased, 
+    purchaseSequence, 
+    purchaseRandomSequences,
+    isLoading: isLoadingLottery, 
+    error: lotteryError,
+    lotteryData
+  } = useGenLotteryByUser();
+  
+  const [selectedNumbers, setSelectedNumbers] = useState<[number, number, number, number, number, number]>([0, 0, 0, 0, 0, 0]);
   const [randomQuantity, setRandomQuantity] = useState<number>(1);
-  const [displayCount, setDisplayCount] = useState(49); // Mostrar todos los números por defecto
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [purchasedTickets, setPurchasedTickets] = useState<number[][]>([]);
   const { theme } = useTheme();
   const isDarkMode = theme === 'dark';
   const howItWorksRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+  
+  const isLoading = isLoadingRaffle || isLoadingLottery;
+  const error = raffleError || lotteryError;
 
   useEffect(() => {
     getRaffle();
+    // Using a placeholder userId for now
+    getLotteryByUser("user123");
   }, []);
 
   useEffect(() => {
@@ -69,35 +89,50 @@ const LotteryPage = () => {
     }
   }, [location, raffle]);
 
-  const handleNumberClick = (num: number) => {
-    setSelectedNumbers((prev) => {
-      if (prev.includes(num)) {
-        return prev.filter((n) => n !== num);
-      } else if (prev.length < 6) {
-        return [...prev, num];
-      }
-      return prev;
-    });
+  const handleNumberChange = (index: number, value: string) => {
+    const numValue = parseInt(value);
+    if (isNaN(numValue) || numValue < 0 || numValue > 9) return;
+    
+    const newNumbers = [...selectedNumbers] as [number, number, number, number, number, number];
+    newNumbers[index] = numValue;
+    setSelectedNumbers(newNumbers);
+  };
+
+  const allNumbersSelected = () => {
+    return selectedNumbers.every(num => num >= 0 && num <= 9);
   };
 
   const handleCustomTicketPurchase = async () => {
-    if (selectedNumbers.length !== 6) {
+    if (!allNumbersSelected()) {
       return;
     }
 
-    const result = await buyCustomTicket([...selectedNumbers].sort((a, b) => a - b));
+    // Check if the sequence has already been purchased
+    if (isSequencePurchased(selectedNumbers)) {
+      setErrorMessage("You have already purchased this sequence. Please select different numbers.");
+      setErrorModalOpen(true);
+      return;
+    }
+
+    const result = await purchaseSequence(selectedNumbers);
     if (result.success) {
       setPurchasedTickets([selectedNumbers]);
-      setSelectedNumbers([]);
+      setSelectedNumbers([0, 0, 0, 0, 0, 0]);
       onOpen();
+    } else {
+      setErrorMessage(result.message || "Failed to purchase ticket");
+      setErrorModalOpen(true);
     }
   };
 
   const handleRandomTicketPurchase = async () => {
-    const result = await buyRandomTickets(randomQuantity);
+    const result = await purchaseRandomSequences(randomQuantity);
     if (result.success && result.tickets) {
       setPurchasedTickets(result.tickets);
       onOpen();
+    } else {
+      setErrorMessage(result.message || "Failed to purchase tickets");
+      setErrorModalOpen(true);
     }
   };
 
@@ -130,7 +165,10 @@ const LotteryPage = () => {
               <div className="text-center p-8 text-danger">
                 <p className="text-xl font-bold mb-4">Error</p>
                 <p>{error}</p>
-                <Button color="primary" className="mt-4" onPress={() => getRaffle()}>
+                <Button color="primary" className="mt-4" onPress={() => {
+                  getRaffle();
+                  getLotteryByUser("user123");
+                }}>
                   Try Again
                 </Button>
               </div>
@@ -141,7 +179,7 @@ const LotteryPage = () => {
     );
   }
 
-  if (!raffle) {
+  if (!raffle || !lotteryData) {
     return (
       <DefaultLayout>
         <div className="py-8 text-center">
@@ -165,7 +203,7 @@ const LotteryPage = () => {
             <div>
               <p className="text-sm text-default-500">Prize Pool</p>
               <p className="text-2xl font-bold text-purple-500">
-                ${extraData.prizePot.toLocaleString()}
+                ${lotteryData.prizePot.toLocaleString()}
               </p>
             </div>
           </div>
@@ -175,7 +213,7 @@ const LotteryPage = () => {
             <div>
               <p className="text-sm text-default-500">Ticket Price</p>
               <p className="text-2xl font-bold">
-                ${raffle.ticketPrice}
+                ${lotteryData.ticketPrice}
               </p>
             </div>
           </div>
@@ -208,62 +246,69 @@ const LotteryPage = () => {
           </CardBody>
         </Card>
         
-        {/* Número Selector */}
+        {/* Número Selector - Updated to 6 sequential selectors */}
         <Card className="mb-8">
           <CardHeader className="pb-0">
             <h3 className="text-xl font-semibold">
               <span className="relative inline-block">
-                Select 6 Numbers
+                Enter Your 6-Digit Sequence
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500"></span>
               </span>
             </h3>
           </CardHeader>
           <CardBody>
-            <p className="text-sm mb-4">
-              Select exactly 6 numbers from the grid below for your lottery ticket.
-            </p>
-            
-            <div className="grid grid-cols-7 gap-2 mb-4">
-              {Array.from({ length: displayCount }, (_, i) => i + 1).map((num) => {
-                const isSelected = selectedNumbers.includes(num);
-                
-                return (
-                  <Button
-                    key={num}
-                    size="sm"
-                    isIconOnly
-                    variant={isSelected ? "solid" : "bordered"}
-                    color={isSelected ? "primary" : "default"}
-                    onPress={() => handleNumberClick(num)}
-                    className={`w-9 h-9 text-sm font-semibold`}
-                  >
-                    {num}
-                  </Button>
-                );
-              })}
+            <div className="flex items-center gap-2 mb-4">
+              <AlertCircle size={16} className="text-primary" />
+              <p className="text-sm">
+                Order matters! Your numbers must match the winning sequence from left to right.
+              </p>
             </div>
             
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
-              <div>
-                <p className="text-sm">Selected ({selectedNumbers.length}/6):</p>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {selectedNumbers.map((num) => (
-                    <Chip key={num} color="primary" variant="flat" onClose={() => handleNumberClick(num)}>
+            <div className="flex flex-col items-center">
+              <div className="flex flex-wrap justify-center gap-2 mb-6">
+                {selectedNumbers.map((num, index) => (
+                  <div key={index} className="text-center">
+                    <p className="text-xs mb-1">Digit {index + 1}</p>
+                    <select 
+                      aria-label={`Select digit ${index + 1}`}
+                      value={num.toString()}
+                      onChange={(e) => handleNumberChange(index, e.target.value)}
+                      className="w-16 p-2 rounded-md border border-default"
+                    >
+                      {Array.from({ length: 10 }, (_, i) => (
+                        <option key={i} value={i.toString()}>
+                          {i}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="bg-default-100 p-4 rounded-lg mb-4 text-center">
+                <p className="text-lg font-semibold mb-2">Your sequence:</p>
+                <div className="flex justify-center gap-2">
+                  {selectedNumbers.map((num, index) => (
+                    <div 
+                      key={index} 
+                      className="w-12 h-12 rounded-full bg-purple-500 text-white flex items-center justify-center text-lg font-bold"
+                    >
                       {num}
-                    </Chip>
+                    </div>
                   ))}
-                  {selectedNumbers.length === 0 && (
-                    <p className="text-default-500">No numbers selected</p>
-                  )}
                 </div>
+                {lotteryData && isSequencePurchased(selectedNumbers) && (
+                  <p className="text-danger mt-2">You have already purchased this sequence</p>
+                )}
               </div>
               
               <Button
                 color="primary"
+                size="lg"
                 onPress={handleCustomTicketPurchase}
-                isDisabled={selectedNumbers.length !== 6}
+                isDisabled={!allNumbersSelected() || isSequencePurchased(selectedNumbers)}
                 isLoading={isLoading}
-                className="px-8"
+                className="px-8 mt-4"
               >
                 Buy Ticket
               </Button>
@@ -283,7 +328,7 @@ const LotteryPage = () => {
           </CardHeader>
           <CardBody>
             <p className="text-sm mb-4">
-              Let us pick 6 random numbers for you. You can buy up to 100 tickets at once.
+              Let us generate random 6-digit sequences for you. You can buy up to 100 tickets at once.
             </p>
             
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -305,7 +350,7 @@ const LotteryPage = () => {
               <div className="text-right">
                 <p className="text-sm">Total:</p>
                 <p className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-blue-500">
-                  ${(raffle.ticketPrice * randomQuantity).toFixed(2)}
+                  ${(lotteryData.ticketPrice * randomQuantity).toFixed(2)}
                 </p>
               </div>
               
@@ -321,7 +366,7 @@ const LotteryPage = () => {
           </CardBody>
         </Card>
         
-        {/* How It Works - Updated */}
+        {/* How It Works - Updated with New Rules */}
         <div ref={howItWorksRef} id="how-it-works">
           <Card className="mb-4">
             <CardBody className="p-0">
@@ -337,11 +382,12 @@ const LotteryPage = () => {
                 </div>
                 
                 <div className="col-span-2 p-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <div className="text-center">
                       <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold mx-auto mb-2">1</div>
-                      <h3 className="font-bold mb-1">Select 6 Numbers</h3>
-                      <p className="text-sm text-default-500">Choose exactly 6 numbers from 1-49 or use Quick Pick.</p>
+                      <h3 className="font-bold mb-1">Pick 6 Digits</h3>
+                      <p className="text-sm text-default-500">Choose your 6-digit sequence or use Quick Pick.</p>
                     </div>
                     <div className="text-center">
                       <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold mx-auto mb-2">2</div>
@@ -350,14 +396,27 @@ const LotteryPage = () => {
                     </div>
                     <div className="text-center">
                       <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold mx-auto mb-2">3</div>
-                      <h3 className="font-bold mb-1">Wait for the Draw</h3>
-                      <p className="text-sm text-default-500">Check if your 6 numbers match the winning combination.</p>
+                      <h3 className="font-bold mb-1">Win by Matching</h3>
+                      <p className="text-sm text-default-500">Match digits in order from left to right to win prizes.</p>
                     </div>
                   </div>
+                  
                 </div>
               </div>
             </CardBody>
           </Card>
+        </div>
+
+        <div className="mt-4 bg-default-100 p-4 rounded-lg">
+          <h4 className="font-bold mb-2">Prize Categories:</h4>
+          <ul className="list-disc pl-5 space-y-1 text-sm">
+            <li>Match first 1 digit: 5% of prize pool</li>
+            <li>Match first 2 digits: 5% of prize pool</li>
+            <li>Match first 3 digits: 5% of prize pool</li>
+            <li>Match first 4 digits: 10% of prize pool</li>
+            <li>Match first 5 digits: 20% of prize pool</li>
+            <li>Match all 6 digits: 40% of prize pool (Jackpot!)</li>
+          </ul>
         </div>
 
         {/* Modal de confirmación */}
@@ -378,8 +437,8 @@ const LotteryPage = () => {
                     <div key={idx} className="mb-2 p-2 bg-default-200 rounded">
                       <span className="font-semibold">Ticket {idx + 1}: </span>
                       <div className="flex flex-wrap gap-1 mt-1">
-                        {ticket.sort((a, b) => a - b).map(num => (
-                          <Chip key={num} size="sm" color="primary" variant="flat">
+                        {ticket.map((num, digitIdx) => (
+                          <Chip key={digitIdx} size="sm" color="primary" variant="flat">
                             {num}
                           </Chip>
                         ))}
@@ -392,6 +451,25 @@ const LotteryPage = () => {
             <ModalFooter>
               <Button color="primary" onPress={onClose}>
                 Close
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+
+        {/* Error Modal */}
+        <Modal isOpen={errorModalOpen} onClose={() => setErrorModalOpen(false)}>
+          <ModalContent>
+            <ModalHeader className="flex flex-col gap-1 text-danger">Error</ModalHeader>
+            <ModalBody>
+              <div className="text-center p-4">
+                <X size={48} className="text-danger mx-auto mb-4" />
+                <p className="text-xl font-bold mb-2 text-danger">Unable to Complete Purchase</p>
+                <p>{errorMessage}</p>
+              </div>
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onPress={() => setErrorModalOpen(false)}>
+                Try Again
               </Button>
             </ModalFooter>
           </ModalContent>
