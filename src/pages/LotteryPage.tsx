@@ -70,14 +70,10 @@ const LotteryPage = () => {
   }, [location, raffle]);
 
   const handleNumberClick = (num: number) => {
-    if (!raffle || !raffle.availableNumbers.includes(num)) {
-      return; // No permitir seleccionar números que no están disponibles
-    }
-
     setSelectedNumbers((prev) => {
       if (prev.includes(num)) {
         return prev.filter((n) => n !== num);
-      } else if (prev.length < (extraData?.maxSelectionAllowed || 6)) {
+      } else if (prev.length < 6) {
         return [...prev, num];
       }
       return prev;
@@ -85,7 +81,7 @@ const LotteryPage = () => {
   };
 
   const handleCustomTicketPurchase = async () => {
-    if (!extraData || selectedNumbers.length !== extraData.maxSelectionAllowed) {
+    if (selectedNumbers.length !== 6) {
       return;
     }
 
@@ -159,7 +155,31 @@ const LotteryPage = () => {
   return (
     <DefaultLayout>
       <div className="py-8 container max-w-4xl mx-auto">
-                <h1 className="text-3xl font-bold mb-3 text-center">          {raffle.name}        </h1>                <p className="text-center text-default-500 mb-8">{raffle.description}</p>                {/* Prize Pool y Ticket Price */}        <div className="flex justify-center gap-12 mb-8">          <div className="flex items-center gap-2">            <TrendingUp size={24} className="text-primary" />            <div>              <p className="text-sm text-default-500">Prize Pool</p>              <p className="text-2xl font-bold text-purple-500">                ${extraData.prizePot.toLocaleString()}              </p>            </div>          </div>                    <div className="flex items-center gap-2">            <Ticket size={24} className="text-primary" />            <div>              <p className="text-sm text-default-500">Ticket Price</p>              <p className="text-2xl font-bold">                ${raffle.ticketPrice}              </p>            </div>          </div>        </div>
+        <h1 className="text-3xl font-bold mb-3 text-center">{raffle.name}</h1>
+        <p className="text-center text-default-500 mb-8">{raffle.description}</p>
+        
+        {/* Prize Pool y Ticket Price */}
+        <div className="flex justify-center gap-12 mb-8">
+          <div className="flex items-center gap-2">
+            <TrendingUp size={24} className="text-primary" />
+            <div>
+              <p className="text-sm text-default-500">Prize Pool</p>
+              <p className="text-2xl font-bold text-purple-500">
+                ${extraData.prizePot.toLocaleString()}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Ticket size={24} className="text-primary" />
+            <div>
+              <p className="text-sm text-default-500">Ticket Price</p>
+              <p className="text-2xl font-bold">
+                ${raffle.ticketPrice}
+              </p>
+            </div>
+          </div>
+        </div>
         
         {/* Timer Card */}
         <Card className="mb-8 bg-gradient-to-r from-purple-800/10 to-blue-800/10">
@@ -193,20 +213,18 @@ const LotteryPage = () => {
           <CardHeader className="pb-0">
             <h3 className="text-xl font-semibold">
               <span className="relative inline-block">
-                Select Your Numbers
+                Select 6 Numbers
                 <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-500 to-blue-500"></span>
               </span>
             </h3>
           </CardHeader>
           <CardBody>
             <p className="text-sm mb-4">
-              Select {extraData.maxSelectionAllowed} numbers from the grid below. 
-              Numbers in red are already taken.
+              Select exactly 6 numbers from the grid below for your lottery ticket.
             </p>
             
             <div className="grid grid-cols-7 gap-2 mb-4">
               {Array.from({ length: displayCount }, (_, i) => i + 1).map((num) => {
-                const isAvailable = raffle.availableNumbers.includes(num);
                 const isSelected = selectedNumbers.includes(num);
                 
                 return (
@@ -214,10 +232,9 @@ const LotteryPage = () => {
                     key={num}
                     size="sm"
                     isIconOnly
-                    variant={isSelected ? "solid" : isAvailable ? "bordered" : "flat"}
-                    color={isSelected ? "primary" : isAvailable ? "default" : "danger"}
+                    variant={isSelected ? "solid" : "bordered"}
+                    color={isSelected ? "primary" : "default"}
                     onPress={() => handleNumberClick(num)}
-                    isDisabled={!isAvailable}
                     className={`w-9 h-9 text-sm font-semibold`}
                   >
                     {num}
@@ -228,7 +245,7 @@ const LotteryPage = () => {
             
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
               <div>
-                <p className="text-sm">Selected ({selectedNumbers.length}/{extraData.maxSelectionAllowed}):</p>
+                <p className="text-sm">Selected ({selectedNumbers.length}/6):</p>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {selectedNumbers.map((num) => (
                     <Chip key={num} color="primary" variant="flat" onClose={() => handleNumberClick(num)}>
@@ -244,7 +261,7 @@ const LotteryPage = () => {
               <Button
                 color="primary"
                 onPress={handleCustomTicketPurchase}
-                isDisabled={selectedNumbers.length !== extraData.maxSelectionAllowed}
+                isDisabled={selectedNumbers.length !== 6}
                 isLoading={isLoading}
                 className="px-8"
               >
@@ -266,7 +283,7 @@ const LotteryPage = () => {
           </CardHeader>
           <CardBody>
             <p className="text-sm mb-4">
-              Let us pick random numbers for you. You can buy up to 100 tickets at once.
+              Let us pick 6 random numbers for you. You can buy up to 100 tickets at once.
             </p>
             
             <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -296,7 +313,6 @@ const LotteryPage = () => {
                 color="primary"
                 variant="flat"
                 onPress={handleRandomTicketPurchase}
-                
                 isLoading={isLoading}
               >
                 Buy Random Tickets
@@ -305,7 +321,7 @@ const LotteryPage = () => {
           </CardBody>
         </Card>
         
-        {/* How It Works - Old Style */}
+        {/* How It Works - Updated */}
         <div ref={howItWorksRef} id="how-it-works">
           <Card className="mb-4">
             <CardBody className="p-0">
@@ -324,8 +340,8 @@ const LotteryPage = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="text-center">
                       <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold mx-auto mb-2">1</div>
-                      <h3 className="font-bold mb-1">Select Your Numbers</h3>
-                      <p className="text-sm text-default-500">Choose {extraData.maxSelectionAllowed} numbers or go for a quick pick.</p>
+                      <h3 className="font-bold mb-1">Select 6 Numbers</h3>
+                      <p className="text-sm text-default-500">Choose exactly 6 numbers from 1-49 or use Quick Pick.</p>
                     </div>
                     <div className="text-center">
                       <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold mx-auto mb-2">2</div>
@@ -334,8 +350,8 @@ const LotteryPage = () => {
                     </div>
                     <div className="text-center">
                       <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold mx-auto mb-2">3</div>
-                      <h3 className="font-bold mb-1">Win Big Prizes</h3>
-                      <p className="text-sm text-default-500">Wait for the draw and check your results.</p>
+                      <h3 className="font-bold mb-1">Wait for the Draw</h3>
+                      <p className="text-sm text-default-500">Check if your 6 numbers match the winning combination.</p>
                     </div>
                   </div>
                 </div>
