@@ -159,64 +159,7 @@ const LotteryPage = () => {
   return (
     <DefaultLayout>
       <div className="py-8 container max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8 text-center">
-          <span className="relative inline-block">
-            {raffle.name}
-            <span className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-blue-500"></span>
-          </span>
-        </h1>
-        
-        {/* Main Lottery Card - Like in the image */}
-        <Card className="mb-8 bg-default-100">
-          <CardBody className="p-6">
-            <div className="space-y-4">
-              <div>
-                <h1 className="text-3xl font-bold">{raffle.name}</h1>
-                <p className="text-default-500">{raffle.description}</p>
-              </div>
-              
-              <div className="flex justify-between items-center pt-4">
-                <div className="flex flex-col items-center">
-                  <TrendingUp size={20} className="text-primary mb-1" />
-                  <p className="text-sm text-default-500">Prize Pool</p>
-                  <p className="text-2xl font-bold text-purple-500">
-                    ${extraData.prizePot.toLocaleString()}
-                  </p>
-                </div>
-                
-                <div className="flex flex-col items-center">
-                  <Ticket size={20} className="text-primary mb-1" />
-                  <p className="text-sm text-default-500">Ticket Price</p>
-                  <p className="text-2xl font-bold">
-                    ${raffle.ticketPrice}
-                  </p>
-                </div>
-              </div>
-              
-              <Divider className="my-2" />
-              
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <Gift size={18} className="text-primary" />
-                  <span>Pick {extraData.maxSelectionAllowed} numbers</span>
-                  <Chip color="primary" variant="flat" size="sm">Win Big</Chip>
-                </div>
-                
-                <div className="flex gap-6">
-                  <div>
-                    <span>Available: </span>
-                    <span className="font-semibold">{raffle.availableNumbers.length}</span>
-                  </div>
-                  
-                  <div>
-                    <span>Sold: </span>
-                    <span className="font-semibold">{raffle.takenNumbers.length}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+                <h1 className="text-3xl font-bold mb-3 text-center">          {raffle.name}        </h1>                <p className="text-center text-default-500 mb-8">{raffle.description}</p>                {/* Prize Pool y Ticket Price */}        <div className="flex justify-center gap-12 mb-8">          <div className="flex items-center gap-2">            <TrendingUp size={24} className="text-primary" />            <div>              <p className="text-sm text-default-500">Prize Pool</p>              <p className="text-2xl font-bold text-purple-500">                ${extraData.prizePot.toLocaleString()}              </p>            </div>          </div>                    <div className="flex items-center gap-2">            <Ticket size={24} className="text-primary" />            <div>              <p className="text-sm text-default-500">Ticket Price</p>              <p className="text-2xl font-bold">                ${raffle.ticketPrice}              </p>            </div>          </div>        </div>
         
         {/* Timer Card */}
         <Card className="mb-8 bg-gradient-to-r from-purple-800/10 to-blue-800/10">
@@ -301,7 +244,7 @@ const LotteryPage = () => {
               <Button
                 color="primary"
                 onPress={handleCustomTicketPurchase}
-                isDisabled={selectedNumbers.length !== extraData.maxSelectionAllowed || isLoading}
+                isDisabled={selectedNumbers.length !== extraData.maxSelectionAllowed}
                 isLoading={isLoading}
                 className="px-8"
               >
@@ -353,7 +296,7 @@ const LotteryPage = () => {
                 color="primary"
                 variant="flat"
                 onPress={handleRandomTicketPurchase}
-                isDisabled={isLoading}
+                
                 isLoading={isLoading}
               >
                 Buy Random Tickets

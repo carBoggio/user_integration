@@ -8,7 +8,7 @@ export default function IndexPage() {
   const navigate = useNavigate();
 
   const handleViewAllRaffles = () => {
-    navigate("/raffles");
+    navigate("/lottery");
   };
 
   return (

@@ -8,6 +8,7 @@ interface Ticket {
   ticketNumbers: number[];
   purchaseDate: string;
   drawDate: string;
+  type: 'raffle' | 'lottery';
 }
 
 export const useGetTickets = () => {
@@ -33,7 +34,8 @@ export const useGetTickets = () => {
           raffleImage: "/img/raffle1/img1.jpg",
           ticketNumbers: [4, 6, 8, 9, 19],
           purchaseDate: "2023-04-15T10:30:00Z",
-          drawDate: "2025-05-25T23:59:59Z"
+          drawDate: "2025-05-25T23:59:59Z",
+          type: 'raffle'
         },
         {
           id: 2,
@@ -42,7 +44,8 @@ export const useGetTickets = () => {
           raffleImage: "/img/raffle2/img1.jpg",
           ticketNumbers: [10, 11, 12, 13],
           purchaseDate: "2023-04-10T14:20:00Z",
-          drawDate: "2025-05-20T20:00:00Z"
+          drawDate: "2025-05-20T20:00:00Z",
+          type: 'raffle'
         },
         {
           id: 3,
@@ -51,7 +54,28 @@ export const useGetTickets = () => {
           raffleImage: "/img/raffle3/img1.jpg",
           ticketNumbers: [5, 6, 7, 8, 9, 10, 11, 12, 13],
           purchaseDate: "2023-04-05T09:15:00Z",
-          drawDate: "2025-05-16T18:30:00Z"
+          drawDate: "2025-05-16T18:30:00Z",
+          type: 'raffle'
+        },
+        {
+          id: 4,
+          raffleId: 1001,
+          raffleName: "MegaLucky Lottery",
+          raffleImage: "/img/lottery/lottery-main.jpg",
+          ticketNumbers: [7, 13, 21, 32, 41, 48],
+          purchaseDate: "2023-04-18T16:45:00Z",
+          drawDate: "2025-06-15T20:00:00Z",
+          type: 'lottery'
+        },
+        {
+          id: 5,
+          raffleId: 1001,
+          raffleName: "MegaLucky Lottery",
+          raffleImage: "/img/lottery/lottery-main.jpg",
+          ticketNumbers: [3, 11, 24, 27, 36, 45],
+          purchaseDate: "2023-04-18T16:45:00Z",
+          drawDate: "2025-06-15T20:00:00Z",
+          type: 'lottery'
         }
       ];
       
