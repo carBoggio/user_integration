@@ -7,27 +7,39 @@ import {
   NavbarMenu,
   NavbarMenuItem,
   NavbarMenuToggle,
-  Link,
-  Button 
+  Link as HeroUILink,
+  Button,
+  Tooltip
 } from "@heroui/react";
-import { Sun, Moon, Github } from "lucide-react";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Sun, Moon, Github, User, Ticket } from "lucide-react";
 import { useTheme } from '@/providers/themeProvider';
 import ConnectWalletButton from './ConectWalletButton';
-
-
-// Triangle Logo component
-const Logo: React.FC = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2L2 19.5H22L12 2Z" fill="currentColor" />
-  </svg>
-);
+import Logo from './Logo';
 
 const CustomNavbar: React.FC = () => {
   const { theme, setTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const navigate = useNavigate();
   
   const toggleTheme = (): void => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
+  const goToHome = () => {
+    navigate('/');
+  };
+
+  const goToProfile = () => {
+    navigate('/profile');
+  };
+
+  const goToLottery = () => {
+    navigate('/lottery');
+  };
+
+  const goToHowItWorks = () => {
+    navigate('/lottery#how-it-works');
   };
 
   return (
@@ -39,34 +51,38 @@ const CustomNavbar: React.FC = () => {
       className="bg-background/80 backdrop-blur-md"
     >
       <NavbarContent className="sm:hidden" justify="start">
-        <NavbarBrand>
-          <Logo />
-          <p className="font-bold text-inherit ml-2">HeroUI</p>
+        <NavbarBrand className="cursor-pointer" onClick={goToHome}>
+          <Logo size="sm" />
         </NavbarBrand>
       </NavbarContent>
       
       <NavbarContent className="hidden sm:flex" justify="start">
-        <NavbarBrand>
-          <Logo />
-          <p className="font-bold text-inherit ml-2">HeroUI</p>
+        <NavbarBrand className="cursor-pointer" onClick={goToHome}>
+          <Logo size="md" />
         </NavbarBrand>
       </NavbarContent>
 
       <NavbarContent className="hidden sm:flex gap-4" justify="end">
         <NavbarItem>
-          <Link color="foreground" href="#" aria-current="page">
+          <RouterLink to="/" className="text-foreground">
             Home
-          </Link>
+          </RouterLink>
+        </NavbarItem>
+        {/* <NavbarItem>
+          <RouterLink to="/raffles" className="text-foreground">
+            Raffles
+          </RouterLink>
+        </NavbarItem> */}
+        <NavbarItem>
+          <RouterLink to="/lottery" className="text-foreground flex items-center gap-1">
+            <Ticket size={16} className="text-purple-500" />
+            Lottery
+          </RouterLink>
         </NavbarItem>
         <NavbarItem>
-          <Link color="foreground" href="#">
-            Pricing
-          </Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Link color="foreground" href="#">
+          <RouterLink to="/lottery#how-it-works" className="text-foreground">
             How It Works
-          </Link>
+          </RouterLink>
         </NavbarItem>
         
         {/* Wallet button with divider */}
@@ -74,14 +90,27 @@ const CustomNavbar: React.FC = () => {
           <ConnectWalletButton />
         </div>
         
-        {/* GitHub and theme buttons with divider */}
+        {/* GitHub, profile and theme buttons with divider */}
         <div className="flex items-center border-l border-divider h-8 pl-4">
+          <Tooltip content="Profile">
+            <Button 
+              isIconOnly
+              variant="bordered"
+              size="sm"
+              radius="full"
+              onPress={goToProfile}
+              className="min-w-8 w-8 h-8 border-default-200 mr-2"
+              aria-label="User Profile"
+            >
+              <User size={18} className="text-purple-500" />
+            </Button>
+          </Tooltip>
           <Button 
             isIconOnly
             variant="bordered"
             size="sm"
             radius="full"
-            as={Link}
+            as={HeroUILink}
             href="https://github.com/example/heroui"
             target="_blank"
             className="min-w-8 w-8 h-8 border-default-200 mr-2"
@@ -106,13 +135,38 @@ const CustomNavbar: React.FC = () => {
       {/* Mobile menu toggle and icons on the right */}
       <NavbarContent className="sm:hidden" justify="end">
         <div className="flex items-center gap-2">
-         
+          <Tooltip content="Lottery">
+            <Button 
+              isIconOnly
+              variant="bordered"
+              size="sm"
+              radius="full"
+              onPress={goToLottery}
+              className="min-w-8 w-8 h-8 border-default-200"
+              aria-label="Lottery"
+            >
+              <Ticket size={18} className="text-purple-500" />
+            </Button>
+          </Tooltip>
+          <Tooltip content="Profile">
+            <Button 
+              isIconOnly
+              variant="bordered"
+              size="sm"
+              radius="full"
+              onPress={goToProfile}
+              className="min-w-8 w-8 h-8 border-default-200"
+              aria-label="User Profile"
+            >
+              <User size={18} className="text-purple-500" />
+            </Button>
+          </Tooltip>
           <Button 
             isIconOnly
             variant="bordered"
             size="sm"
             radius="full"
-            as={Link}
+            as={HeroUILink}
             href="https://github.com/example/heroui"
             target="_blank"
             className="min-w-8 w-8 h-8 border-default-200"
@@ -139,34 +193,50 @@ const CustomNavbar: React.FC = () => {
       
       <NavbarMenu>
         <NavbarMenuItem>
-          <Link
-            color="foreground"
-            className="w-full"
-            href="#"
-            size="lg"
+          <RouterLink
+            to="/"
+            className="w-full text-foreground text-lg"
+            onClick={() => setIsMenuOpen(false)}
           >
             Home
-          </Link>
+          </RouterLink>
         </NavbarMenuItem>
         <NavbarMenuItem>
-          <Link
-            color="foreground"
-            className="w-full"
-            href="#"
-            size="lg"
+          <RouterLink
+            to="/raffles"
+            className="w-full text-foreground text-lg"
+            onClick={() => setIsMenuOpen(false)}
           >
-            Pricing
-          </Link>
+            Raffles
+          </RouterLink>
         </NavbarMenuItem>
         <NavbarMenuItem>
-          <Link
-            color="foreground"
-            className="w-full"
-            href="#"
-            size="lg"
+          <RouterLink
+            to="/lottery"
+            className="w-full text-foreground text-lg flex items-center gap-2"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <Ticket size={18} className="text-purple-500" />
+            Lottery
+          </RouterLink>
+        </NavbarMenuItem>
+        <NavbarMenuItem>
+          <RouterLink
+            to="/lottery#how-it-works"
+            className="w-full text-foreground text-lg"
+            onClick={() => setIsMenuOpen(false)}
           >
             How It Works
-          </Link>
+          </RouterLink>
+        </NavbarMenuItem>
+        <NavbarMenuItem>
+          <RouterLink
+            to="/profile"
+            className="w-full text-foreground text-lg"
+            onClick={() => setIsMenuOpen(false)}
+          >
+            My Profile
+          </RouterLink>
         </NavbarMenuItem>
       </NavbarMenu>
     </Navbar>
