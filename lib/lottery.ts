@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0xc5755b126fca8795bd5a30529210843dbbf632ed";
+export const CONTRACT_ADDRESS = "0x71970ab42cc4f1552de20ac2eb2267e3ca1dca2a";
 
 export const CONTRACT_ABI = [
   {
@@ -576,9 +576,9 @@ export const CONTRACT_ABI = [
     name: "ticketPrice",
     outputs: [
       {
-        internalType: "uint64",
+        internalType: "uint256",
         name: "",
-        type: "uint64",
+        type: "uint256",
       },
     ],
     stateMutability: "view",

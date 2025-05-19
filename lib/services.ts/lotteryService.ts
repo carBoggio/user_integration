@@ -1,13 +1,7 @@
+import { parseUnits, formatUnits, getContract } from "viem";
 import { publicClient, getWalletClient } from "../viem";
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "../lottery";
 import { ERC20_ABI, CONTRACT_ERC20 } from "../erc20";
-import {
-  parseEther,
-  formatEther,
-  parseUnits,
-  formatUnits,
-  getContract,
-} from "viem";
 
 export const lotteryService = {
   // Read functions
@@ -56,13 +50,16 @@ export const lotteryService = {
 
   async getTicketPrice() {
     try {
-      const result = await publicClient.readContract({
+      const result = (await publicClient.readContract({
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
         functionName: "ticketPrice",
-      });
-      //TODO: Format from raw units to a human-readable format
-      return result;
+      })) as bigint;
+      // Format from raw units to a human-readable format using 18 decimals
+      return {
+        raw: result,
+        formatted: formatUnits(result, 18), // Changed from 6 to 18 decimals
+      };
     } catch (error) {
       console.error("Error getting ticket price:", error);
       throw error;
@@ -203,7 +200,7 @@ export const lotteryService = {
         success: true,
         hash,
         ticketCount,
-        totalCost: formatUnits(totalCost, 6), // Format for display assuming 6 decimals
+        totalCost: formatUnits(totalCost, 18), // Changed from 6 to 18 decimals
       };
     } catch (error) {
       console.error("Error buying random tickets:", error);
@@ -287,6 +284,7 @@ export const lotteryService = {
         success: true,
         hash,
         numbers: numbersArray,
+        cost: formatUnits(ticketPriceRaw, 18), // Changed from 6 to 18 decimals
       };
     } catch (error) {
       console.error("Error buying custom ticket:", error);
