@@ -1,38 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLottery } from './../../lib/hooks/useLottery';
 
 export interface LotteryData {
-  id: number;
+  lotteryId: string;
+  state: string;
+  drawTime: string;
+  ticketPrice: string;
+  totalPrizes: string;
+  winningNumbers: string;
+  userTickets: string;
+  // Additional fields needed by LotteryPage
   name: string;
   description: string;
-  image: string;
-  ticketPrice: number;
-  endDate: string;
   prizePot: number;
-  maxTicketNumber: number; // Para lotería de 6 números, típicamente sería 49
-  soldTickets: number;
-  ticketsSold: number[][]; // Array de arrays con los 6 números seleccionados para cada ticket vendido
+  raffleDate: string;
+  endDate: string;
 }
 
-// Mock de datos para la lotería activa
-const mockLotteryData: LotteryData = {
-  id: 1001,
-  name: "MegaLucky Lottery",
-  description: "The biggest lottery draw of the season. Pick 6 numbers and win big!",
-  image: "/img/lottery/lottery-main.jpg",
-  ticketPrice: 5.99,
-  endDate: "2025-06-15T20:00:00Z",
-  prizePot: 1250000,
-  maxTicketNumber: 49,
-  soldTickets: 346,
-  ticketsSold: [
-    [1, 7, 13, 25, 36, 42],
-    [5, 10, 15, 20, 25, 30],
-    [2, 4, 8, 16, 32, 48],
-    // ... más tickets vendidos
-  ]
-};
-
 export const useGetLottery = () => {
+  const { 
+    displayLotteryData, 
+    loadAllLotteryData, 
+    buyRandomTickets: hookBuyRandomTickets, 
+    buyCustomTicket: hookBuyCustomTicket,
+    isLoading: hookIsLoading,
+    error: hookError
+  } = useLottery();
+  
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lottery, setLottery] = useState<LotteryData | null>(null);
@@ -42,12 +36,25 @@ export const useGetLottery = () => {
     setError(null);
     
     try {
-      // Simulamos un retraso para imitar una llamada a la API
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await loadAllLotteryData();
+      const data = displayLotteryData();
       
-      // En una aplicación real, esto recuperaría datos de la API
-      setLottery(mockLotteryData);
-      return mockLotteryData;
+      if (typeof data === 'string') {
+        throw new Error(data);
+      }
+      
+      // Transform the data to match LotteryPage requirements
+      const formattedData: LotteryData = {
+        ...data,
+        name: "MegaLucky Lottery",
+        description: "The biggest lottery draw of the season. Pick 6 numbers and win big!",
+        prizePot: parseFloat(data.totalPrizes.replace(' USDT', '')),
+        raffleDate: data.drawTime,
+        endDate: data.drawTime
+      };
+      
+      setLottery(formattedData);
+      return formattedData;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch lottery data';
       setError(errorMessage);
@@ -68,27 +75,23 @@ export const useGetLottery = () => {
       }
       
       // Validar que los números estén en el rango correcto
-      if (numbers.some(num => num < 1 || num > mockLotteryData.maxTicketNumber)) {
-        throw new Error(`Numbers must be between 1 and ${mockLotteryData.maxTicketNumber}`);
+      if (numbers.some(num => num < 1 || num > 49)) {
+        throw new Error(`Numbers must be between 1 and 49`);
       }
       
-      // Simulamos un retraso para imitar una llamada a la API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const result = await hookBuyCustomTicket(numbers);
       
-      // En una aplicación real, esto enviaría los datos a la API
-      // y actualizaría el estado con la respuesta
-      const updatedLottery = { 
-        ...mockLotteryData,
-        soldTickets: mockLotteryData.soldTickets + 1,
-        ticketsSold: [...mockLotteryData.ticketsSold, numbers]
-      };
-      
-      setLottery(updatedLottery);
-      return true;
+      if (!result.success) {
+        throw new Error('Failed to purchase ticket');
+      }
+
+      // Refresh lottery data after purchase
+      await getLottery();
+      return { success: true, tickets: [numbers] };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to purchase ticket';
       setError(errorMessage);
-      return false;
+      return { success: false, message: errorMessage };
     } finally {
       setIsLoading(false);
     }
@@ -104,51 +107,44 @@ export const useGetLottery = () => {
         throw new Error('You can buy between 1 and 100 random tickets');
       }
       
-      // Simulamos un retraso para imitar una llamada a la API
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      const result = await hookBuyRandomTickets(quantity);
       
-      // Generar tickets aleatorios
-      const newTickets: number[][] = [];
-      
-      for (let i = 0; i < quantity; i++) {
-        // Generar 6 números aleatorios únicos entre 1 y maxTicketNumber
-        const randomTicket: number[] = [];
-        while (randomTicket.length < 6) {
-          const num = Math.floor(Math.random() * mockLotteryData.maxTicketNumber) + 1;
-          if (!randomTicket.includes(num)) {
-            randomTicket.push(num);
-          }
-        }
-        // Ordenar los números
-        randomTicket.sort((a, b) => a - b);
-        newTickets.push(randomTicket);
+      if (!result.success) {
+        throw new Error('Failed to purchase random tickets');
       }
-      
-      // En una aplicación real, esto enviaría los datos a la API
-      // y actualizaría el estado con la respuesta
-      const updatedLottery = { 
-        ...mockLotteryData,
-        soldTickets: mockLotteryData.soldTickets + quantity,
-        ticketsSold: [...mockLotteryData.ticketsSold, ...newTickets]
-      };
-      
-      setLottery(updatedLottery);
-      return newTickets;
+
+      // Refresh lottery data after purchase
+      await getLottery();
+      return { success: true, tickets: [] }; // The actual tickets will be in the updated lottery data
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to purchase random tickets';
       setError(errorMessage);
-      return null;
+      return { success: false, message: errorMessage };
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Check if a sequence has been purchased
+  const isSequencePurchased = (numbers: number[]) => {
+    if (!lottery || !lottery.userTickets) return false;
+    const userTickets = lottery.userTickets.split(' | ');
+    const sequenceStr = numbers.join(' - ');
+    return userTickets.includes(sequenceStr);
+  };
+
+  // Auto-load data when component mounts
+  useEffect(() => {
+    getLottery();
+  }, []);
+
   return {
     getLottery,
     buyCustomTicket,
     buyRandomTickets,
-    isLoading,
-    error,
+    isSequencePurchased,
+    isLoading: isLoading || hookIsLoading,
+    error: error || hookError,
     lottery
   };
-}; 
+};

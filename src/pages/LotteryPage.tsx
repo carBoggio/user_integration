@@ -479,4 +479,4 @@ const LotteryPage = () => {
   );
 };
 
-export default LotteryPage; 
+export default LotteryPage;

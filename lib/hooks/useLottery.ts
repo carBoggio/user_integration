@@ -1,12 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { lotteryService } from "../services.ts/lotteryService";
 import { formatUnits } from "viem";
 
 export function useLottery() {
-  // Update userTickets type to match the contract return type (array of ticket number arrays)
   const [userTickets, setUserTickets] = useState<number[][]>([]);
-
-  // Rest of the state variables remain the same...
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lotteryState, setLotteryState] = useState<bigint | null>(null);
@@ -18,199 +15,191 @@ export function useLottery() {
   } | null>(null);
   const [winningNumbers, setWinningNumbers] = useState<bigint[] | null>(null);
   const [totalPrizes, setTotalPrizes] = useState<bigint | null>(null);
-  const [transactionHash, setTransactionHash] = useState<string | null>(null);
 
-  // Function to load basic lottery data
-  const loadLotteryData = useCallback(async () => {
+  function loadingLottery() {
+    console.log('🔄 Loading lottery data...');
     setIsLoading(true);
     setError(null);
+  }
+
+  // Function to load all lottery data at once
+  const loadAllLotteryData = useCallback(async () => {
+    loadingLottery();
     try {
-      // Get lottery state
-      const state = await lotteryService.getLotteryState();
+      // Load all data in parallel
+      const [state, id, time, price, tickets, numbers, prizes] = await Promise.all([
+        lotteryService.getLotteryState(),
+        lotteryService.getCurrentLotteryId(),
+        lotteryService.getCurrentDrawTime(),
+        lotteryService.getTicketPrice(),
+        lotteryService.getUserTickets(),
+        lotteryService.getWinningNumbers(),
+        lotteryService.getTotalPrizes()
+      ]);
+
+      console.log('📊 Raw Data:', {
+        state,
+        id,
+        time,
+        price,
+        tickets,
+        numbers,
+        prizes
+      });
 
       setLotteryState(state as bigint);
-
-      // Get lottery ID
-      const id = await lotteryService.getCurrentLotteryId();
-
       setCurrentLotteryId(id as bigint);
-
-      // Get draw time
-      const time = await lotteryService.getCurrentDrawTime();
       setDrawTime(time as bigint);
-
-      // Get ticket price
-      const price = await lotteryService.getTicketPrice();
+      
+      // Handle ticket price
       if (typeof price === "object" && "formatted" in price) {
         setTicketPrice(price);
       } else {
-        // For backward compatibility if your getTicketPrice still returns just the raw bigint
         setTicketPrice({
           raw: price as unknown as bigint,
-          formatted: formatUnits(price as unknown as bigint, 18), // Changed from 6 to 18 decimals
+          formatted: formatUnits(price as unknown as bigint, 18),
         });
       }
 
-      setIsLoading(false);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load lottery data"
+      // Format tickets
+      const formattedTickets = (tickets as bigint[][]).map(ticket => 
+        Array.isArray(ticket) ? ticket.map(num => Number(num)) : []
       );
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Function to load user tickets
-  const loadUserTickets = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const tickets = (await lotteryService.getUserTickets()) as bigint[][];
-
-      // Properly convert the returned tickets to the expected format
-      // Each ticket is an array of 6 numbers (uint8[6])
-      const formattedTickets = tickets.map((ticket) => {
-        // Convert each BigInt in the ticket array to a number
-        return Array.isArray(ticket) ? ticket.map((num) => Number(num)) : [];
-      });
-
       setUserTickets(formattedTickets);
-      setIsLoading(false);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load user tickets"
-      );
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Function to load winning numbers
-  const loadWinningNumbers = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const numbers = await lotteryService.getWinningNumbers();
+      
       setWinningNumbers(numbers as bigint[]);
-      setIsLoading(false);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load winning numbers"
-      );
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Function to load total prizes
-  const loadTotalPrizes = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const prizes = await lotteryService.getTotalPrizes();
-
       setTotalPrizes(prizes as bigint);
+      
+      console.log('✅ Data loaded successfully');
       setIsLoading(false);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load total prizes"
-      );
+      console.error('❌ Error loading lottery data:', err);
+      setError(err instanceof Error ? err.message : "Failed to load lottery data");
       setIsLoading(false);
     }
   }, []);
 
   // Function to buy random tickets
-  const buyRandomTickets = useCallback(
-    async (ticketCount: number) => {
-      setIsLoading(true);
-      setError(null);
-      setTransactionHash(null);
-      try {
-        const result = await lotteryService.buyRandomTickets(ticketCount);
-
-        if (result.success) {
-          setTransactionHash(result.hash);
-          // Refresh user's tickets after purchase
-
-          await loadUserTickets();
-        }
-        setIsLoading(false);
-
-        return result;
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to buy tickets";
-
-        setError(errorMessage);
-        setIsLoading(false);
-
-        return { success: false, error: errorMessage };
+  const buyRandomTickets = useCallback(async (ticketCount: number) => {
+    console.log('🎫 Buying random tickets:', ticketCount);
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await lotteryService.buyRandomTickets(ticketCount);
+      console.log('🎫 Buy result:', result);
+      if (result.success) {
+        await loadAllLotteryData(); // Refresh all data after purchase
       }
-    },
-    [loadUserTickets]
-  );
+      setIsLoading(false);
+      return result;
+    } catch (err) {
+      console.error('❌ Error buying tickets:', err);
+      const errorMessage = err instanceof Error ? err.message : "Failed to buy tickets";
+      setError(errorMessage);
+      setIsLoading(false);
+      return { success: false, error: errorMessage };
+    }
+  }, [loadAllLotteryData]);
 
   // Function to buy custom ticket
-  const buyCustomTicket = useCallback(
-    async (numbers: number[]) => {
-      setIsLoading(true);
-      setError(null);
-      setTransactionHash(null);
-      try {
-        const result = await lotteryService.buyCustomTicket(numbers);
-        if (result.success) {
-          setTransactionHash(result.hash);
-          // Refresh user's tickets after purchase
-          await loadUserTickets();
-        }
-        setIsLoading(false);
-        return result;
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to buy custom ticket";
-        setError(errorMessage);
-        setIsLoading(false);
-        return { success: false, error: errorMessage };
+  const buyCustomTicket = useCallback(async (numbers: number[]) => {
+    console.log('🎫 Buying custom ticket:', numbers);
+    setIsLoading(true);
+    setError(null);
+    try {
+      const result = await lotteryService.buyCustomTicket(numbers);
+      console.log('🎫 Buy result:', result);
+      if (result.success) {
+        await loadAllLotteryData(); // Refresh all data after purchase
       }
-    },
-    [loadUserTickets]
-  );
+      setIsLoading(false);
+      return result;
+    } catch (err) {
+      console.error('❌ Error buying custom ticket:', err);
+      const errorMessage = err instanceof Error ? err.message : "Failed to buy custom ticket";
+      setError(errorMessage);
+      setIsLoading(false);
+      return { success: false, error: errorMessage };
+    }
+  }, [loadAllLotteryData]);
 
-  // Helper function to format a timestamp to human-readable date
+  // Helper function to format draw time
   const formatDrawTime = (timestamp: bigint | null) => {
     if (!timestamp) return "Not set";
-    return new Date(Number(timestamp) * 1000).toLocaleString();
+    const date = new Date(Number(timestamp) * 1000);
+    return date.toLocaleString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
-  // Function to check if lottery is open
-  const isLotteryOpen = lotteryState === 1n; // 1 = OPEN, 0 = CLOSED
+  // Helper function to format numbers
+  const formatNumbers = (numbers: bigint[] | null) => {
+    if (!numbers || numbers.length === 0) return "Not drawn yet";
+    return numbers.map(n => n.toString().padStart(2, '0')).join(" - ");
+  };
 
-  // Return all the state and functions
+  // Helper function to format tickets
+  const formatTickets = (tickets: number[][]) => {
+    if (!tickets || tickets.length === 0) return "No tickets";
+    return tickets.map(ticket => 
+      ticket.map(num => num.toString().padStart(2, '0')).join(" - ")
+    ).join(" | ");
+  };
+
+  // Helper function to format price
+  const formatPrice = (price: { raw: bigint; formatted: string; } | null) => {
+    if (!price) return "Not available";
+    return `${price.formatted} USDT`;
+  };
+
+  // Helper function to format prizes
+  const formatPrizes = (prizes: bigint | null) => {
+    if (!prizes) return "Not available";
+    return `${formatUnits(prizes, 18)} USDT`;
+  };
+
+  // Function to display lottery data
+  const displayLotteryData = useCallback(() => {
+    if (isLoading) {
+      console.log('⏳ Loading state...');
+      return "Loading...";
+    }
+    if (error) {
+      console.log('❌ Error state:', error);
+      return `Error: ${error}`;
+    }
+
+    const data = {
+      lotteryId: currentLotteryId?.toString() || "Not available",
+      state: lotteryState === 1n ? "Open" : "Closed",
+      drawTime: formatDrawTime(drawTime),
+      ticketPrice: formatPrice(ticketPrice),
+      totalPrizes: formatPrizes(totalPrizes),
+      winningNumbers: formatNumbers(winningNumbers),
+      userTickets: formatTickets(userTickets)
+    };
+
+    console.log('📊 Current Lottery Data:', data);
+    return data;
+  }, [isLoading, error, currentLotteryId, lotteryState, drawTime, ticketPrice, totalPrizes, winningNumbers, userTickets]);
+
+  // Auto-load data when component mounts
+  useEffect(() => {
+    console.log('🚀 Initializing lottery hook...');
+    loadAllLotteryData();
+  }, [loadAllLotteryData]);
+
   return {
-    // State
     isLoading,
     error,
-    lotteryState,
-    currentLotteryId,
-    drawTime,
-    ticketPrice,
-    userTickets,
-    winningNumbers,
-    totalPrizes,
-    transactionHash,
-
-    // Derived state
-    isLotteryOpen,
-    formattedDrawTime: formatDrawTime(drawTime),
-
-    // Functions
-    loadLotteryData,
-    loadUserTickets,
-    loadWinningNumbers,
-    loadTotalPrizes,
+    displayLotteryData,
+    loadAllLotteryData,
     buyRandomTickets,
     buyCustomTicket,
-
-    // Clear functions
-    clearError: () => setError(null),
-    clearTransactionHash: () => setTransactionHash(null),
+    clearError: () => setError(null)
   };
 }
