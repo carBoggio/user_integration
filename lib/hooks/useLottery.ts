@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { lotteryService } from "../services/lotteryService";
 import { formatUnits } from "viem";
 
@@ -65,50 +65,8 @@ export function useLottery() {
       const formattedTickets = (tickets as bigint[][]).map(ticket => 
         Array.isArray(ticket) ? ticket.map(num => Number(num)) : []
       );
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Function to load user tickets
-  const loadUserTickets = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const tickets = (await lotteryService.getUserTickets()) as bigint[][];
-      
-      // If no tickets returned (likely because no wallet connected), just set empty array
-      if (!tickets || tickets.length === 0) {
-        setUserTickets([]);
-        setIsLoading(false);
-        return;
-      }
-
-      // Properly convert the returned tickets to the expected format
-      // Each ticket is an array of 6 numbers (uint8[6])
-      const formattedTickets = tickets.map((ticket) => {
-        // Convert each BigInt in the ticket array to a number
-        return Array.isArray(ticket) ? ticket.map((num) => Number(num)) : [];
-      });
-
       setUserTickets(formattedTickets);
-      setIsLoading(false);
-    } catch (err) {
-      // Only set error if it's not related to wallet connection
-      if (err instanceof Error && !err.message.includes("InvalidAddressError")) {
-        setError(err.message);
-      } else {
-        setUserTickets([]);
-      }
-      setIsLoading(false);
-    }
-  }, []);
-
-  // Function to load winning numbers
-  const loadWinningNumbers = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const numbers = await lotteryService.getWinningNumbers();
+      
       setWinningNumbers(numbers as bigint[]);
       setTotalPrizes(prizes as bigint);
       
@@ -178,13 +136,64 @@ export function useLottery() {
     });
   };
 
-  
-  // Function to check if lottery is open
-  const isLotteryOpen =  Number(lotteryState) === 1; // 1 = OPEN, 0 = CLOSED
+  // Helper function to format numbers
+  const formatNumbers = (numbers: bigint[] | null) => {
+    if (!numbers || numbers.length === 0) return "Not drawn yet";
+    return numbers.map(n => n.toString().padStart(2, '0')).join(" - ");
+  };
+
+  // Helper function to format tickets
+  const formatTickets = (tickets: number[][]) => {
+    if (!tickets || tickets.length === 0) return "No tickets";
+    return tickets.map(ticket => 
+      ticket.map(num => num.toString().padStart(2, '0')).join(" - ")
+    ).join(" | ");
+  };
+
+  // Helper function to format price
+  const formatPrice = (price: { raw: bigint; formatted: string; } | null) => {
+    if (!price) return "Not available";
+    return `${price.formatted} USDT`;
+  };
+
+  // Helper function to format prizes
+  const formatPrizes = (prizes: bigint | null) => {
+    if (!prizes) return "Not available";
+    return `${formatUnits(prizes, 18)} USDT`;
+  };
+
+  // Function to display lottery data
+  const displayLotteryData = useCallback(() => {
+    if (isLoading) {
+      console.log('⏳ Loading state...');
+      return "Loading...";
+    }
+    if (error) {
+      console.log('❌ Error state:', error);
+      return `Error: ${error}`;
+    }
+
+    const data = {
+      lotteryId: currentLotteryId?.toString() || "Not available",
+      state: lotteryState === 1n ? "Open" : "Closed",
+      drawTime: formatDrawTime(drawTime),
+      ticketPrice: formatPrice(ticketPrice),
+      totalPrizes: formatPrizes(totalPrizes),
+      winningNumbers: formatNumbers(winningNumbers),
+      userTickets: formatTickets(userTickets)
+    };
+
+    console.log('📊 Current Lottery Data:', data);
+    return data;
+  }, [isLoading, error, currentLotteryId, lotteryState, drawTime, ticketPrice, totalPrizes, winningNumbers, userTickets]);
+
+  // Auto-load data when component mounts
+  useEffect(() => {
+    console.log('🚀 Initializing lottery hook...');
+    loadAllLotteryData();
+  }, [loadAllLotteryData]);
 
   return {
-    // State
-    
     isLoading,
     error,
     displayLotteryData,
