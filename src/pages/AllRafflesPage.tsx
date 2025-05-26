@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Skeleton } from "@heroui/react";
+
 import DefaultLayout from "@/layouts/default";
 import Raffle from "@/components/Raffle";
 
@@ -44,10 +44,10 @@ export default function AllRafflesPage() {
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, index) => (
-              <Skeleton key={index} className="rounded-lg">
+            {[...Array(6)].map(() => (
+              
                 <div className="h-[400px] rounded-lg bg-default-300"></div>
-              </Skeleton>
+             
             ))}
           </div>
         ) : raffles.length > 0 ? (

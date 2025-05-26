@@ -1,16 +1,14 @@
 import React from 'react';
-import { 
-  Navbar, 
-  NavbarBrand, 
-  NavbarContent, 
-  NavbarItem, 
-  NavbarMenu,
-  NavbarMenuItem,
-  NavbarMenuToggle,
-  Link as HeroUILink,
-  Button,
-  Tooltip
-} from "@heroui/react";
+import { Navbar } from "@heroui/navbar";
+import { NavbarBrand } from "@heroui/navbar";
+import { NavbarContent } from "@heroui/navbar";
+import { NavbarItem } from "@heroui/navbar";
+import { NavbarMenu } from "@heroui/navbar";
+import { NavbarMenuItem } from "@heroui/navbar";
+import { NavbarMenuToggle } from "@heroui/navbar";
+import { Button } from "@heroui/button";
+import { Tooltip } from "@heroui/tooltip";
+import { Link as HeroUILink } from "@heroui/link";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { Sun, Moon, Github, User, Ticket } from "lucide-react";
 import { useTheme } from '@/providers/themeProvider';
@@ -27,7 +25,7 @@ const CustomNavbar: React.FC = () => {
   };
 
   const goToHome = () => {
-    navigate('/');
+    navigate('/app');
   };
 
   const goToProfile = () => {
@@ -38,9 +36,7 @@ const CustomNavbar: React.FC = () => {
     navigate('/lottery');
   };
 
-  const goToHowItWorks = () => {
-    navigate('/lottery#how-it-works');
-  };
+
 
   return (
     <Navbar 
@@ -64,7 +60,7 @@ const CustomNavbar: React.FC = () => {
 
       <NavbarContent className="hidden sm:flex gap-4" justify="end">
         <NavbarItem>
-          <RouterLink to="/" className="text-foreground">
+          <RouterLink to="/app" className="text-foreground">
             Home
           </RouterLink>
         </NavbarItem>
@@ -95,7 +91,7 @@ const CustomNavbar: React.FC = () => {
           <Tooltip content="Profile">
             <Button 
               isIconOnly
-              variant="bordered"
+              variant="solid"
               size="sm"
               radius="full"
               onPress={goToProfile}
@@ -107,7 +103,7 @@ const CustomNavbar: React.FC = () => {
           </Tooltip>
           <Button 
             isIconOnly
-            variant="bordered"
+            variant="solid"
             size="sm"
             radius="full"
             as={HeroUILink}
@@ -120,7 +116,7 @@ const CustomNavbar: React.FC = () => {
           </Button>
           <Button 
             isIconOnly
-            variant="bordered"
+            variant="solid"
             size="sm"
             radius="full"
             onClick={toggleTheme}
@@ -138,7 +134,7 @@ const CustomNavbar: React.FC = () => {
           <Tooltip content="Lottery">
             <Button 
               isIconOnly
-              variant="bordered"
+              variant="solid"
               size="sm"
               radius="full"
               onPress={goToLottery}
@@ -151,7 +147,7 @@ const CustomNavbar: React.FC = () => {
           <Tooltip content="Profile">
             <Button 
               isIconOnly
-              variant="bordered"
+              variant="solid"
               size="sm"
               radius="full"
               onPress={goToProfile}
@@ -163,7 +159,7 @@ const CustomNavbar: React.FC = () => {
           </Tooltip>
           <Button 
             isIconOnly
-            variant="bordered"
+            variant="solid"
             size="sm"
             radius="full"
             as={HeroUILink}
@@ -176,7 +172,7 @@ const CustomNavbar: React.FC = () => {
           </Button>
           <Button 
             isIconOnly
-            variant="bordered"
+            variant="ghost"
             size="sm"
             radius="full"
             onClick={toggleTheme}

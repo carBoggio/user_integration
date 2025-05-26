@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Spinner, Avatar, Tooltip, Card } from "@heroui/react";
+import { Button, Spinner, Card } from "@heroui/react";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 // Función para acortar la dirección de la wallet
@@ -89,9 +89,9 @@ const ConnectWalletButton: React.FC = () => {
                           {connecting ? (
                             <>
                               <Spinner size="sm" color="secondary" />
-                              <Tooltip content={connectionTimeout ? "Verifica que tu wallet esté abierta y desbloqueada" : "Esperando confirmación de la wallet..."}>
-                                <span>{connectionTimeout ? "Verifica tu wallet" : "Conectando..."}</span>
-                              </Tooltip>
+                              <span title={connectionTimeout ? "Verifica que tu wallet esté abierta y desbloqueada" : "Esperando confirmación de la wallet..."}>
+                                {connectionTimeout ? "Verifica tu wallet" : "Conectando..."}
+                              </span>
                             </>
                           ) : (
                             <span>Connect Wallet</span>
@@ -149,10 +149,10 @@ const ConnectWalletButton: React.FC = () => {
                       )}
                       
                       {/* Avatar: Usamos el ENS avatar si existe, o generamos uno basado en la dirección */}
-                      <Avatar 
-                        src={account.ensAvatar || `https://effigy.im/a/${account.address}.svg`} 
-                        size="sm" 
-                        className="border-1 border-white"
+                      <img
+                        src={account.ensAvatar || `https://effigy.im/a/${account.address}.svg`}
+                        alt="Avatar"
+                        className="w-6 h-6 rounded-full border-1 border-white"
                       />
                       
                       {/* Nombre y balance */}
