@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { lotteryService } from "../services/lotteryService";
-import { formatUnits } from "viem";
-
+import { formatUnits, formatEther } from "viem";
 export function useLottery() {
   // Update userTickets type to match the contract return type (array of ticket number arrays)
   const [userTickets, setUserTickets] = useState<number[][]>([]);
@@ -27,7 +26,7 @@ export function useLottery() {
     try {
       // Get lottery state
       const state = await lotteryService.getLotteryState();
-
+      console.log("Lottery state:", state);
       setLotteryState(state as bigint);
 
       // Get lottery ID
@@ -116,8 +115,10 @@ export function useLottery() {
     setError(null);
     try {
       const prizes = await lotteryService.getTotalPrizes();
+      console.log("Total prizes:", prizes);
 
-      setTotalPrizes(prizes as bigint);
+     
+      setTotalPrizes(prizes);
       setIsLoading(false);
     } catch (err) {
       setError(
@@ -190,7 +191,7 @@ export function useLottery() {
     return new Date(Number(timestamp) * 1000).toLocaleString();
   };
 
-  
+ 
   // Function to check if lottery is open
   const isLotteryOpen =  Number(lotteryState) === 1; // 1 = OPEN, 0 = CLOSED
 

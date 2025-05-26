@@ -1,4 +1,4 @@
-import {  formatUnits } from "viem";
+import {  formatEther, formatUnits } from "viem";
 import { publicClient, getWalletClient } from "../viem";
 import { CONTRACT_ABI, CONTRACT_ADDRESS } from "../lottery";
 import { ERC20_ABI, CONTRACT_ERC20 } from "../erc20";
@@ -108,7 +108,10 @@ export const lotteryService = {
         abi: CONTRACT_ABI,
         functionName: "getTotalPrizes",
       });
-      return result;
+      if (typeof result !== "number" && typeof result !== "bigint") {
+        throw new Error("Unexpected result type for total prizes");
+      }
+      return formatEther(result as bigint); // Format to Ether
     } catch (error) {
       console.error("Error getting total prizes:", error);
       throw error;
