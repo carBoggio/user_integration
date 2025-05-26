@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { lotteryService } from "../services.ts/lotteryService";
+import { lotteryService } from "../services/lotteryService";
 import { formatUnits } from "viem";
 
 export function useLottery() {
@@ -66,6 +66,13 @@ export function useLottery() {
     setError(null);
     try {
       const tickets = (await lotteryService.getUserTickets()) as bigint[][];
+      
+      // If no tickets returned (likely because no wallet connected), just set empty array
+      if (!tickets || tickets.length === 0) {
+        setUserTickets([]);
+        setIsLoading(false);
+        return;
+      }
 
       // Properly convert the returned tickets to the expected format
       // Each ticket is an array of 6 numbers (uint8[6])
@@ -77,9 +84,12 @@ export function useLottery() {
       setUserTickets(formattedTickets);
       setIsLoading(false);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load user tickets"
-      );
+      // Only set error if it's not related to wallet connection
+      if (err instanceof Error && !err.message.includes("InvalidAddressError")) {
+        setError(err.message);
+      } else {
+        setUserTickets([]);
+      }
       setIsLoading(false);
     }
   }, []);
@@ -180,12 +190,14 @@ export function useLottery() {
     return new Date(Number(timestamp) * 1000).toLocaleString();
   };
 
+  
   // Function to check if lottery is open
-  const isLotteryOpen = lotteryState === 1n; // 1 = OPEN, 0 = CLOSED
+  const isLotteryOpen =  Number(lotteryState) === 1; // 1 = OPEN, 0 = CLOSED
 
   // Return all the state and functions
   return {
     // State
+    
     isLoading,
     error,
     lotteryState,

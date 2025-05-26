@@ -5,7 +5,7 @@ import { megaEth } from "../src/components/Chains"; // Assuming your MegaETH cha
 export const publicClient = createPublicClient({
   chain: megaEth,
   transport: http(
-    process.env.NEXT_PUBLIC_RPC_URL || "https://carrot.megaeth.com/rpc"
+    import.meta.env.VITE_RPC_URL || "https://carrot.megaeth.com/rpc"
   ),
 });
 

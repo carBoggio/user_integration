@@ -54,20 +54,20 @@ export default function IndexPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto mt-12">
             <div className="p-6 rounded-lg border border-gray-200 dark:border-gray-700">
               <div className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 mx-auto mb-4 text-xl font-bold">1</div>
-              <h3 className="text-lg font-semibold mb-2">Choose Your Raffle</h3>
-              <p className="text-gray-600 dark:text-gray-400">Browse through our exciting selection of raffle items.</p>
+              <h3 className="text-lg font-semibold mb-2">Pick 6 Digits</h3>
+              <p className="text-gray-600 dark:text-gray-400">Choose your 6-digit sequence or use Quick Pick.</p>
             </div>
             
             <div className="p-6 rounded-lg border border-gray-200 dark:border-gray-700">
               <div className="w-12 h-12 flex items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900 text-purple-600 dark:text-purple-300 mx-auto mb-4 text-xl font-bold">2</div>
-              <h3 className="text-lg font-semibold mb-2">Select Your Numbers</h3>
-              <p className="text-gray-600 dark:text-gray-400">Pick your lucky numbers from the available tickets.</p>
+              <h3 className="text-lg font-semibold mb-2">Buy Your Tickets</h3>
+              <p className="text-gray-600 dark:text-gray-400">Complete your purchase securely.</p>
             </div>
             
             <div className="p-6 rounded-lg border border-gray-200 dark:border-gray-700">
               <div className="w-12 h-12 flex items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300 mx-auto mb-4 text-xl font-bold">3</div>
-              <h3 className="text-lg font-semibold mb-2">Wait For The Draw</h3>
-              <p className="text-gray-600 dark:text-gray-400">If your numbers match, you win the amazing prize!</p>
+              <h3 className="text-lg font-semibold mb-2">Win by Matching</h3>
+              <p className="text-gray-600 dark:text-gray-400">Match digits in order from left to right to win prizes.</p>
             </div>
           </div>
         </div>

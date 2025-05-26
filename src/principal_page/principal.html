@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MegaLucky</title>
+    <link rel="icon" type="image/png" href="MegaLuckyLogo.png">
+    <link rel="apple-touch-icon" href="MegaLuckyLogo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="futuristic-theme">
+    <div class="background futuristic-bg"></div>
+    <header class="glass-effect">
+        <nav class="nav-container">
+            <div class="logo-container glass-card">
+                <img src="logo.svg" alt="MegaLucky Logo" class="logo-img glow-effect">
+                <span class="project-name neon-text">MegaLucky</span>
+            </div>
+            <ul class="nav-links glass-effect">
+                <li class="dropdown">
+                    <a href="#documentation" target="_blank">Documentation</a>
+                    <ul class="dropdown-content">
+                        <li><a href="Litepaper MegaLucky.pdf" target="_blank">Litepaper</a></li>
+                        <li><a href="#" target="_blank">Documentation</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#community" target="_blank">Community</a>
+                    <ul class="dropdown-content">
+                        <li><a href="https://x.com/MegaLucky_" target="_blank">Twitter</a></li>
+                        <li><a href="https://discord.gg/m3WPhrfGHT" target="_blank">Discord</a></li>
+                        <li><a href="https://www.linkedin.com/in/megalucky-lucky-364a75362/" target="_blank">LinkedIn</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#partnership" target="_blank">Partnership</a>
+                    <ul class="dropdown-content">
+                        <li><a href="https://docs.google.com/forms/d/e/1FAIpQLSduWcpNYTNleVBE72qPGVGUtLry0F69iXXTMq1od4rVDJvmdg/viewform?usp=sharing&ouid=117445146190496305076" target="_blank">Contact Us</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <section id="home" class="hero card glass-card">
+            <div class="interactive-decoration">
+                <div class="floating-circle"></div>
+                <div class="floating-circle"></div>
+                <div class="floating-circle"></div>
+                <div class="floating-circle"></div>
+                <div class="floating-circle"></div>
+                <div class="floating-circle"></div>
+                <div class="floating-circle"></div>
+                <div class="floating-circle"></div>
+            </div>
+            <h1 class="hero-title gradient-text">The next generation of online interactions</h1>
+            <p class="typing-text glass-effect"><span class="typing"></span></p>
+            <a href="user_integration-master/index.html" class="launch-app-btn neon-btn">Launch App</a>
+        </section>
+
+        <section id="projects" class="projects card glass-card">
+            <h2 class="section-title gradient-text">Testnet</h2>
+            <p class="section-subtitle">Coming soon</p>
+            <div class="project-grid">
+                <!-- Add your projects here -->
+            </div>
+        </section>
+
+        <section id="about" class="about card glass-card">
+            <h2 class="section-title gradient-text">About Us</h2>
+            <p class="section-text">MegaLucky is much more than a simple platform for raffles, sweepstakes or contests. It is a movement which wants to decentralize the possibilities, providing options, to all people, to grow and develop in a fair environment because without opportunities there is no meritocracy...</p>
+            <br>
+            <p class="section-text">Sometimes you have to have a little bit of luck ;)</p>
+            <p class="signature">- MegaLucky Team</p>
+        </section>
+
+        <section id="contact" class="contact card glass-card">
+            <h2 class="section-title gradient-text">Contact Us</h2>
+            <p class="section-subtitle">Interested in working together? Contact us!</p>
+            <p class="contact-email">megaluckyteam@gmail.com</p>
+            <!-- Add your contact form here -->
+        </section>
+    </main>
+
+    <footer class="glass-effect">
+        <div class="footer-content">
+            <div class="footer-left glass-card">
+                <img src="poweredbymegaetharg.jpg" alt="Powered by MegaEthArg" class="footer-logo glow-effect">
+            </div>
+            <div class="footer-right">
+                <p class="copyright">&copy; 2025 MegaLucky. All rights reserved.</p>
+                <div class="social-links">
+                    <!-- Add your social media links here -->
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const circles = document.querySelectorAll('.floating-circle');
+            const hero = document.querySelector('.hero');
+
+            hero.addEventListener('mousemove', (e) => {
+                const rect = hero.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                circles.forEach((circle, index) => {
+                    const speed = (index + 1) * 0.1;
+                    const offsetX = (x - rect.width / 2) * speed;
+                    const offsetY = (y - rect.height / 2) * speed;
+                    
+                    circle.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+                });
+            });
+
+            hero.addEventListener('mouseleave', () => {
+                circles.forEach(circle => {
+                    circle.style.transform = 'translate(0, 0)';
+                });
+            });
+
+            // Dropdown handling
+            const dropdowns = document.querySelectorAll('.dropdown');
+            
+            dropdowns.forEach(dropdown => {
+                dropdown.addEventListener('mouseenter', () => {
+                    dropdown.classList.add('active');
+                });
+                
+                const content = dropdown.querySelector('.dropdown-content');
+                if (content) {
+                    content.addEventListener('mouseenter', () => {
+                        dropdown.classList.add('active');
+                    });
+                    
+                    content.addEventListener('mouseleave', () => {
+                        setTimeout(() => {
+                            if (!dropdown.matches(':hover')) {
+                                dropdown.classList.remove('active');
+                            }
+                        }, 100);
+                    });
+                }
+                
+                dropdown.addEventListener('mouseleave', () => {
+                    const content = dropdown.querySelector('.dropdown-content');
+                    if (content) {
+                        setTimeout(() => {
+                            if (!content.matches(':hover')) {
+                                dropdown.classList.remove('active');
+                            }
+                        }, 100);
+                    }
+                });
+            });
+
+            // Existing typing animation code
+            const typingText = document.querySelector('.typing');
+            const text = "A new way to grow together.";
+            let currentText = "";
+            let isDeleting = false;
+            let typingSpeed = 100;
+            let pauseTime = 2000;
+
+            function type() {
+                if (isDeleting) {
+                    currentText = text.substring(0, currentText.length - 1);
+                } else {
+                    currentText = text.substring(0, currentText.length + 1);
+                }
+
+                typingText.textContent = currentText;
+
+                if (!isDeleting && currentText === text) {
+                    isDeleting = true;
+                    typingSpeed = pauseTime;
+                } else if (isDeleting && currentText === "") {
+                    isDeleting = false;
+                    typingSpeed = 100;
+                } else if (isDeleting) {
+                    typingSpeed = 50;
+                }
+
+                setTimeout(type, typingSpeed);
+            }
+
+            setTimeout(type, 500);
+        });
+    </script>
+</body>
+</html> 
