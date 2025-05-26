@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { lotteryService } from "../services/lotteryService";
-import { formatUnits, formatEther } from "viem";
+import { formatUnits } from "viem";
 export function useLottery() {
   // Update userTickets type to match the contract return type (array of ticket number arrays)
   const [userTickets, setUserTickets] = useState<number[][]>([]);
@@ -16,7 +16,7 @@ export function useLottery() {
     formatted: string;
   } | null>(null);
   const [winningNumbers, setWinningNumbers] = useState<bigint[] | null>(null);
-  const [totalPrizes, setTotalPrizes] = useState<bigint | null>(null);
+  const [totalPrizes, setTotalPrizes] = useState<bigint | Number | null>(null);
   const [transactionHash, setTransactionHash] = useState<string | null>(null);
 
   // Function to load basic lottery data
@@ -114,7 +114,7 @@ export function useLottery() {
     setIsLoading(true);
     setError(null);
     try {
-      const prizes = await lotteryService.getTotalPrizes();
+      const prizes : Number = await lotteryService.getTotalPrizes();
       console.log("Total prizes:", prizes);
 
      

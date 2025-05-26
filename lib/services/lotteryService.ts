@@ -80,6 +80,7 @@ export const lotteryService = {
         functionName: "getUserTickets",
         args: [walletClient.address],
       });
+      console.log("User tickets:", result);
       return result;
     } catch (error) {
       console.error("Error getting user tickets:", error);
@@ -101,7 +102,7 @@ export const lotteryService = {
     }
   },
 
-  async getTotalPrizes() {
+async getTotalPrizes(): Promise<number> {
     try {
       const result = await publicClient.readContract({
         address: CONTRACT_ADDRESS,
@@ -111,12 +112,13 @@ export const lotteryService = {
       if (typeof result !== "number" && typeof result !== "bigint") {
         throw new Error("Unexpected result type for total prizes");
       }
-      return formatEther(result as bigint); // Format to Ether
+      // Convert the formatted string to a number
+      return Number(formatEther(result as bigint));
     } catch (error) {
       console.error("Error getting total prizes:", error);
       throw error;
     }
-  },
+},
 
   // Write functions
   async buyRandomTickets(ticketCount: number) {
