@@ -5,8 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import './styles.css';
 
 // Import assets
-import logo from './logo.svg';
-import poweredByLogo from './poweredbymegaetharg.jpg';
 import litepaper from './Litepaper MegaLucky.pdf';
 
 // LaunchAppButton component
@@ -26,111 +24,44 @@ const Project: React.FC = () => {
 
 
   useEffect(() => {
-    // Add the typing animation effect
-    const typingText = document.querySelector('.typing');
-    const text = "A new way to grow together.";
-    let currentText = "";
-    let isDeleting = false;
-    let typingSpeed = 100;
-    let pauseTime = 2000;
+    // Handle dropdown interactions
+    const dropdowns = document.querySelectorAll('.dropdown');
 
-    function type() {
-      if (isDeleting) {
-        currentText = text.substring(0, currentText.length - 1);
-      } else {
-        currentText = text.substring(0, currentText.length + 1);
-      }
-
-      if (typingText) {
-        typingText.textContent = currentText;
-      }
-
-      if (!isDeleting && currentText === text) {
-        isDeleting = true;
-        typingSpeed = pauseTime;
-      } else if (isDeleting && currentText === "") {
-        isDeleting = false;
-        typingSpeed = 100;
-      } else if (isDeleting) {
-        typingSpeed = 50;
-      }
-
-      setTimeout(type, typingSpeed);
-    }
-
-    setTimeout(type, 500);
-
-    // Handle floating circles animation
-    const circles = document.querySelectorAll('.floating-circle');
-    const hero = document.querySelector('.hero');
-
-    if (hero) {
-      const handleMouseMove = (e: Event) => {
-        const mouseEvent = e as MouseEvent;
-        const rect = (hero as HTMLElement).getBoundingClientRect();
-        const x = mouseEvent.clientX - rect.left;
-        const y = mouseEvent.clientY - rect.top;
-
-        circles.forEach((circle, index) => {
-          const htmlCircle = circle as HTMLElement;
-          const speed = (index + 1) * 0.1;
-          const offsetX = (x - rect.width / 2) * speed;
-          const offsetY = (y - rect.height / 2) * speed;
-          
-          htmlCircle.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-        });
-      };
-
-      const handleMouseLeave = () => {
-        circles.forEach((circle) => {
-          const htmlCircle = circle as HTMLElement;
-          htmlCircle.style.transform = 'translate(0, 0)';
-        });
-      };
-
-      hero.addEventListener('mousemove', handleMouseMove);
-      hero.addEventListener('mouseleave', handleMouseLeave);
-
-      // Handle dropdown interactions
-      const dropdowns = document.querySelectorAll('.dropdown');
-      
-      dropdowns.forEach(dropdown => {
-        dropdown.addEventListener('mouseenter', () => {
-          dropdown.classList.add('active');
-        });
-        
-        const content = dropdown.querySelector('.dropdown-content');
-        if (content) {
-          content.addEventListener('mouseenter', () => {
-            dropdown.classList.add('active');
-          });
-          
-          content.addEventListener('mouseleave', () => {
-            setTimeout(() => {
-              if (!(dropdown as HTMLElement).matches(':hover')) {
-                dropdown.classList.remove('active');
-              }
-            }, 100);
-          });
-        }
-        
-        dropdown.addEventListener('mouseleave', () => {
-          const content = dropdown.querySelector('.dropdown-content');
-          if (content) {
-            setTimeout(() => {
-              if (!(content as HTMLElement).matches(':hover')) {
-                dropdown.classList.remove('active');
-              }
-            }, 100);
-          }
-        });
+    dropdowns.forEach(dropdown => {
+      dropdown.addEventListener('mouseenter', () => {
+        dropdown.classList.add('active');
       });
 
-      return () => {
-        hero.removeEventListener('mousemove', handleMouseMove);
-        hero.removeEventListener('mouseleave', handleMouseLeave);
-      };
-    }
+      const content = dropdown.querySelector('.dropdown-content');
+      if (content) {
+        content.addEventListener('mouseenter', () => {
+          dropdown.classList.add('active');
+        });
+
+        content.addEventListener('mouseleave', () => {
+          setTimeout(() => {
+            if (!(dropdown as HTMLElement).matches(':hover')) {
+              dropdown.classList.remove('active');
+            }
+          }, 100);
+        });
+      }
+
+      dropdown.addEventListener('mouseleave', () => {
+        const content = dropdown.querySelector('.dropdown-content');
+        if (content) {
+          setTimeout(() => {
+            if (!(content as HTMLElement).matches(':hover')) {
+              dropdown.classList.remove('active');
+            }
+          }, 100);
+        }
+      });
+    });
+
+    return () => {
+      // Cleanup for dropdown interactions if necessary
+    };
   }, []);
 
   return (
@@ -139,8 +70,8 @@ const Project: React.FC = () => {
       <header className="glass-effect">
         <nav className="nav-container">
           <div className="logo-container glass-card">
-            <img src={logo} alt="MegaLucky Logo" className="logo-img glow-effect" />
-            <span className="project-name neon-text">MegaLucky</span>
+            <img src="/MegaLuckyLogo.png" alt="MegaLucky Logo" className="logo-img" />
+            <span className="project-name">MegaLucky</span>
           </div>
           <ul className="nav-links glass-effect">
             <li className="dropdown">
@@ -173,21 +104,10 @@ const Project: React.FC = () => {
 
       <main className="main-content">
         <section id="home" className="hero card glass-card">
-          <div className="interactive-decoration">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="floating-circle"></div>
-            ))}
-          </div>
           <h1 className="hero-title gradient-text">The next generation of online interactions</h1>
-          <p className="typing-text glass-effect"><span className="typing"></span></p>
-          <LaunchAppButton />
-        </section>
-
-        <section id="projects" className="projects card glass-card">
-          <h2 className="section-title gradient-text">Testnet</h2>
-          <p className="section-subtitle">Coming soon</p>
-          <div className="project-grid">
-            {/* Add your projects here */}
+          <p className="static-text">Testnet is live!</p>
+          <div className="button-container">
+            <LaunchAppButton />
           </div>
         </section>
 
@@ -213,15 +133,7 @@ const Project: React.FC = () => {
 
       <footer className="glass-effect">
         <div className="footer-content">
-          <div className="footer-left glass-card">
-            <img src={poweredByLogo} alt="Powered by MegaEthArg" className="footer-logo glow-effect" />
-          </div>
-          <div className="footer-right">
-            <p className="copyright">&copy; 2025 MegaLucky. All rights reserved.</p>
-            <div className="social-links">
-              {/* Add your social media links here */}
-            </div>
-          </div>
+          <p className="copyright">&copy; 2025 MegaLucky. All rights reserved.</p>
         </div>
       </footer>
     </div>

@@ -1,16 +1,16 @@
 /* Variables de colores */
 :root {
-    --primary: #6C63FF;
-    --secondary: #845EF7;
-    --accent: #00D4FF;
-    --dark: #1A1B2E;
-    --darker: #080A17;
-    --light: #F8F9FA;
-    --glass: rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --primary: #196539;
+    --secondary: #1a7a45;
+    --accent: #196539;
+    --dark: #196539;
+    --darker: #134d2c;
+    --light: #f7efdd;
+    --glass: rgba(247, 239, 221, 0.05);
+    --glass-border: rgba(25, 101, 57, 0.1);
     --gradient-1: linear-gradient(135deg, var(--primary), var(--secondary));
     --gradient-2: linear-gradient(45deg, var(--accent), var(--primary));
-    --neon-shadow: 0 0 20px rgba(108, 99, 255, 0.3);
+    --neon-shadow: 0 0 20px rgba(25, 101, 57, 0.3);
 }
 
 /* Reset y estilos generales */
@@ -23,8 +23,8 @@
 body.futuristic-theme {
     font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
     line-height: 1.8;
-    color: var(--light);
-    background-color: var(--darker);
+    color: var(--primary);
+    background-color: #f7efdd;
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
@@ -33,30 +33,21 @@ body.futuristic-theme {
 
 /* Fondo futurista */
 .background.futuristic-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at top right, var(--secondary) 0%, transparent 70%),
-                radial-gradient(circle at bottom left, var(--primary) 0%, transparent 70%),
-                var(--darker);
-    z-index: -1;
-    opacity: 0.15;
+    display: none;
 }
 
 /* Efecto cristal */
 .glass-effect {
-    background: var(--glass);
-    backdrop-filter: blur(20px);
+    background: var(--light);
     border: none;
 }
 
 .glass-card {
-    background: transparent;
+    background: white;
     transition: transform 0.3s ease;
     margin: 8rem auto;
     max-width: 900px;
+    border: 1px solid var(--glass-border);
 }
 
 .glass-card:hover {
@@ -69,7 +60,7 @@ header.glass-effect {
     width: 100%;
     top: 0;
     z-index: 1000;
-    background: rgba(26, 27, 46, 0.95);
+    background: var(--light);
     backdrop-filter: blur(15px);
     padding: 1rem 0;
     height: 80px;
@@ -77,7 +68,7 @@ header.glass-effect {
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid var(--glass-border);
-    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 20px rgba(25, 101, 57, 0.1);
 }
 
 .nav-container {
@@ -103,27 +94,16 @@ header.glass-effect {
     background: transparent;
 }
 
-.logo-img.glow-effect {
+.logo-img {
     width: 40px;
     height: 40px;
     object-fit: contain;
-    transition: all 0.3s ease;
-    filter: drop-shadow(0 0 8px var(--primary));
 }
 
-.logo-img.glow-effect:hover {
-    transform: scale(1.05);
-    filter: drop-shadow(0 0 15px var(--accent));
-}
-
-.project-name.neon-text {
+.project-name {
     font-size: 1.8rem;
     font-weight: 700;
-    background: var(--gradient-1);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 15px rgba(108, 99, 255, 0.2);
+    color: var(--primary);
     letter-spacing: -0.03em;
     white-space: nowrap;
 }
@@ -142,18 +122,18 @@ header.glass-effect {
 .nav-links a {
     padding: 0.6rem 1rem;
     white-space: nowrap;
-    color: var(--light);
+    color: var(--primary);
     text-decoration: none;
     font-weight: 500;
     transition: all 0.3s ease;
     opacity: 0.9;
     border-radius: 8px;
+    background: var(--light);
 }
 
 .nav-links a:hover {
-    color: var(--accent);
-    opacity: 1;
-    background: rgba(108, 99, 255, 0.1);
+    color: var(--secondary);
+    background: var(--light);
 }
 
 /* Dropdown styles - CORREGIDO */
@@ -166,7 +146,7 @@ header.glass-effect {
     top: calc(100% + 10px);
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(26, 27, 46, 0.95);
+    background: rgba(247, 239, 221, 0.95);
     backdrop-filter: blur(20px);
     min-width: 200px;
     padding: 0.8rem 0;
@@ -199,14 +179,14 @@ header.glass-effect {
     font-size: 0.9rem;
     white-space: nowrap;
     transition: all 0.2s ease;
-    color: var(--light);
+    color: var(--primary);
     opacity: 0.85;
     border-radius: 0;
 }
 
 .dropdown-content a:hover {
-    background: rgba(108, 99, 255, 0.15);
-    color: var(--accent);
+    background: rgba(25, 101, 57, 0.15);
+    color: var(--secondary);
     opacity: 1;
     padding-left: 2rem;
 }
@@ -226,6 +206,15 @@ header.glass-effect {
     transform: rotate(180deg);
 }
 
+/* Dropdown styles - CORREGIDO */
+.dropdown > a {
+    border: 1px solid var(--primary);
+}
+
+.dropdown > a:hover {
+    border-color: var(--secondary);
+}
+
 /* Botón Launch App - CORREGIDO */
 .launch-app-btn.neon-btn {
     display: inline-flex;
@@ -234,22 +223,22 @@ header.glass-effect {
     padding: 0.8rem 1.8rem;
     font-size: 0.95rem;
     font-weight: 600;
-    color: white;
-    background: var(--gradient-2);
+    color: var(--light);
+    background: var(--primary);
     border: none;
     border-radius: 50px;
     cursor: pointer;
     transition: all 0.4s ease;
     text-decoration: none;
-    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(25, 101, 57, 0.3);
     white-space: nowrap;
     margin-left: 1rem;
 }
 
 .launch-app-btn.neon-btn:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 6px 25px rgba(0, 212, 255, 0.4);
-    background: linear-gradient(45deg, var(--accent), var(--secondary));
+    box-shadow: 0 6px 25px rgba(25, 101, 57, 0.4);
+    background: var(--secondary);
 }
 
 /* Contenido principal - CORREGIDO */
@@ -269,7 +258,7 @@ header.glass-effect {
     overflow: hidden;
     max-width: 1200px;
     margin: 2rem auto;
-    background: var(--glass);
+    background: var(--light);
     backdrop-filter: blur(20px);
     border-radius: 20px;
     border: 1px solid var(--glass-border);
@@ -279,7 +268,7 @@ header.glass-effect {
     font-size: 4rem;
     margin-bottom: 2rem;
     font-weight: 700;
-    color: #000; /* Texto negro para fondo blanco */
+    color: var(--primary);
     line-height: 1.2;
     letter-spacing: -0.04em;
 }
@@ -298,12 +287,12 @@ header.glass-effect {
     text-align: center;
     font-weight: 700;
     letter-spacing: -0.03em;
-    color: #000; /* Texto negro para fondo blanco */
+    color: var(--primary);
 }
 
 .section-subtitle {
     font-size: 1.3rem;
-    color: var(--accent);
+    color: var(--secondary);
     text-align: center;
     margin-bottom: 3rem;
     opacity: 0.9;
@@ -311,7 +300,7 @@ header.glass-effect {
 
 .section-text {
     font-size: 1.2rem;
-    color: #000; /* Texto negro para fondo blanco */
+    color: var(--primary);
     opacity: 0.85;
     line-height: 1.8;
     max-width: 800px;
@@ -320,7 +309,7 @@ header.glass-effect {
 
 .signature {
     font-style: italic;
-    color: var(--accent);
+    color: var(--secondary);
     margin-top: 2rem;
     text-align: right;
     opacity: 0.9;
@@ -328,15 +317,15 @@ header.glass-effect {
 
 /* Cards - CORREGIDO */
 .card.glass-card {
-    background: rgba(255, 255, 255, 0.9); /* Fondo blanco semi-transparente */
+    background: var(--light);
     backdrop-filter: blur(20px);
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid var(--glass-border);
     padding: 3rem;
     margin: 3rem auto;
     max-width: 1000px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    color: #000; /* Texto negro para las cards */
+    color: var(--primary);
 }
 
 /* Efectos de decoración */
@@ -353,9 +342,9 @@ header.glass-effect {
 
 /* Footer - CORREGIDO */
 footer.glass-effect {
-    margin-top: 8rem;
-    padding: 3rem 0;
-    background: rgba(26, 27, 46, 0.95);
+    margin-top: 4rem;
+    padding: 1rem 0;
+    background: rgba(247, 239, 221, 0.95);
     backdrop-filter: blur(15px);
     border-top: 1px solid var(--glass-border);
 }
@@ -365,7 +354,7 @@ footer.glass-effect {
     margin: 0 auto;
     padding: 0 2rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
 }
 
@@ -377,9 +366,9 @@ footer.glass-effect {
 }
 
 .copyright {
-    color: var(--light);
+    color: var(--primary);
     opacity: 0.6;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 /* Animaciones */
@@ -394,7 +383,7 @@ footer.glass-effect {
 
 .typing-text {
     font-size: 1.6rem;
-    color: #000; /* Texto negro para fondo blanco */
+    color: var(--primary);
     margin: 2rem 0;
     display: inline-block;
     font-weight: 500;
@@ -422,20 +411,20 @@ footer.glass-effect {
     text-align: center;
     margin: 2rem 0;
     padding: 1.5rem;
-    color: var(--accent);
+    color: var(--primary);
     font-weight: 500;
     letter-spacing: 0.02em;
     display: block;
-    background: rgba(108, 99, 255, 0.1);
+    background: rgba(25, 101, 57, 0.1);
     border-radius: 12px;
     transition: all 0.3s ease;
     border: 1px solid var(--glass-border);
 }
 
 .contact-email:hover {
-    background: rgba(108, 99, 255, 0.2);
+    background: rgba(25, 101, 57, 0.2);
     transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(108, 99, 255, 0.2);
+    box-shadow: 0 4px 20px rgba(25, 101, 57, 0.2);
 }
 
 /* Responsive - MEJORADO */
@@ -513,7 +502,7 @@ footer.glass-effect {
         width: 100%;
         margin: 0.5rem 0;
         padding: 0;
-        background: rgba(108, 99, 255, 0.1);
+        background: rgba(25, 101, 57, 0.1);
         box-shadow: none;
         max-height: 0;
         overflow: hidden;
@@ -534,11 +523,39 @@ footer.glass-effect {
 
     .dropdown-content a {
         padding: 0.8rem 1.5rem;
-        color: var(--light);
+        color: var(--primary);
     }
 
     .dropdown-content a:hover {
         padding-left: 2rem;
-        background: rgba(108, 99, 255, 0.2);
+        background: rgba(25, 101, 57, 0.2);
     }
+}
+
+/* Texto estático */
+.static-text {
+    font-size: 1.6rem;
+    color: var(--primary);
+    margin: 2rem 0;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+/* Contenedor del botón */
+.button-container {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.button-container .launch-app-btn.neon-btn {
+    margin: 0;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 20px rgba(25, 101, 57, 0.4);
+}
+
+.button-container .launch-app-btn.neon-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 6px 30px rgba(25, 101, 57, 0.5);
 }
