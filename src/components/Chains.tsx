@@ -14,8 +14,8 @@ export const megaEth = {
     },
     contracts: {
       multicall3: {
-        address: '0xca11bde05977b3631167028862be2a173976ca11', // Usando la misma dirección que en el ejemplo, reemplázala si es diferente
-        blockCreated: 1, // Asumiendo que es el bloque inicial, ajústalo según sea necesario
+        address: '0xca11bde05977b3631167028862be2a173976ca11', // Using the same address as in the example, replace it if different
+        blockCreated: 1, // Assuming it's the initial block, adjust as needed
       },
     },
   } as const satisfies Chain

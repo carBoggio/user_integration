@@ -148,20 +148,14 @@ const LotteryPage = () => {
     }
 
     if (isSequencePurchased(selectedNumbers)) {
-      // Eliminado: setErrorMessage("You have already purchased this sequence. Please select different numbers.");
-      // Eliminado: setErrorModalOpen(true);
       return;
     }
 
     const result = await buyCustomTicket(selectedNumbers);
     if ('success' in result && result.success) {
-      // Eliminado: setPurchasedTickets([selectedNumbers]);
       setSelectedNumbers([0, 0, 0, 0, 0, 0]);
       await loadUserTickets(); // Refresh user tickets
       onOpen();
-    } else {
-      // Eliminado: setErrorMessage('error' in result ? result.error : "Failed to purchase ticket");
-      // Eliminado: setErrorModalOpen(true);
     }
   };
 
@@ -178,11 +172,7 @@ const LotteryPage = () => {
     const result = await buyRandomTickets(randomQuantity);
     if ('success' in result && result.success) {
       await loadUserTickets(); // Refresh user tickets
-      // Eliminado: setPurchasedTickets(userTickets.slice(-randomQuantity));
       onOpen();
-    } else {
-      // Eliminado: setErrorMessage('error' in result ? result.error : "Failed to purchase tickets");
-      // Eliminado: setErrorModalOpen(true);
     }
   };
 
@@ -351,15 +341,28 @@ const LotteryPage = () => {
                   </div>
                   
                   {address ? (
-                    <Button
-                      color="primary"
-                      size="lg"
-                      onPress={handleCustomTicketPurchase}
-                      isLoading={isLoading}
-                      className="px-8 mt-4"
-                    >
-                      Buy Ticket
-                    </Button>
+                    <>
+                      <Button
+                        color="primary"
+                        size="lg"
+                        onPress={handleCustomTicketPurchase}
+                        isLoading={isLoading}
+                        className="px-8 mt-4"
+                      >
+                        Buy Ticket
+                      </Button>
+                      <Button
+                        variant="flat"
+                        size="lg"
+                        className="px-8 mt-4 border-2 border-blue-500 text-blue-500 hover:bg-blue-50"
+                        onPress={() => window.open('https://cap.app/testnet', '_blank')}
+                      >
+                        Mint cUSD
+                      </Button>
+                      <p className="text-sm text-default-500 mt-2 text-center">
+                        You need to mint cUSD to buy tickets
+                      </p>
+                    </>
                   ) : (
                     <div className="mt-4">
                       <ConnectButton />

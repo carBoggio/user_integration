@@ -6,16 +6,40 @@ import IndexPage from "@/pages/index";
 import UserProfilePage from "@/pages/UserProfilePage";
 import LotteryPage from "@/pages/LotteryPage";
 import Project from "@/principal_page/Project";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 function App() {
   return (
     <Routes>
       {/* Main routes */}
       <Route path="/" element={<Navigate to="/project" replace />} />
-      <Route element={<Project />} path="/project"/>
-      <Route element={<IndexPage />} path="/app" />
-      <Route element={<UserProfilePage />} path="/profile" />
-      <Route element={<LotteryPage />} path="/lottery" />
+      <Route path="/project" element={<Project />} />
+      
+      {/* Protected routes */}
+      <Route
+        path="/app"
+        element={
+          <ProtectedRoute>
+            <IndexPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <UserProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/lottery"
+        element={
+          <ProtectedRoute>
+            <LotteryPage />
+          </ProtectedRoute>
+        }
+      />
       
       {/* Static file routes */}
       <Route 

@@ -10,7 +10,18 @@ export default {
     "./node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        primary: '#196539',
+        secondary: '#1a7a45',
+        accent: '#196539',
+        dark: '#196539',
+        darker: '#134d2c',
+        light: '#f7efdd',
+        glass: 'rgba(247, 239, 221, 0.05)',
+        'glass-border': 'rgba(25, 101, 57, 0.1)',
+      },
+    },
   },
   darkMode: "class",
   plugins: [heroui()],

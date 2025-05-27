@@ -1,8 +1,8 @@
-// src/config/walletConfig.ts - Configuración detallada y personalizada de wallets
+// src/config/walletConfig.ts - Detailed and customized wallet configuration
 
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 import {
-  // Wallets específicas (las más populares primero)
+  // Specific wallets (most popular first)
   metaMaskWallet,
   rainbowWallet,
   coinbaseWallet,
@@ -10,7 +10,7 @@ import {
   okxWallet,
   phantomWallet,
   
-  // Wallets regionales populares 
+  // Popular regional wallets 
   bitgetWallet,
   tokenPocketWallet,
   
@@ -24,47 +24,47 @@ import {
   // Safe Multi-sig
   safeWallet,
   
-  // Generic wallets (siempre incluir estos)
+  // Generic wallets (always include these)
   injectedWallet,
   walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 
 import { http } from 'wagmi';
 import { mainnet } from 'wagmi/chains';
-import { megaEth } from '../components/Chains'; // Importamos la cadena personalizada
+import { megaEth } from '../components/Chains'; // Import the custom chain
 
-// Obtén el Project ID desde variables de entorno
+// Get the Project ID from environment variables
 const WALLET_CONNECT_PROJECT_ID = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || 'TU_PROJECT_ID';
 
-// Función para obtener la configuración completa de RainbowKit
+// Function to get the complete RainbowKit configuration
 export const getWalletConfig = () => {
   return getDefaultConfig({
-    appName: 'MegaLucky', // Nombre de tu aplicación
+    appName: 'MegaLucky', // Your application name
     projectId: WALLET_CONNECT_PROJECT_ID,
     
-    // Configurar cadenas disponibles (primero aparece MegaETH como principal)
+    // Configure available chains (MegaETH appears first as main)
     chains: [megaEth, mainnet],
     
-    // Configurar transports (endpoints RPC)
+    // Configure transports (RPC endpoints)
     transports: {
       [megaEth.id]: http('https://carrot.megaeth.com/rpc'),
       [mainnet.id]: http(),
     },
     
-    // Uso de la nueva API de conectores con wallets agrupadas
+    // Use of the new connector API with grouped wallets
     wallets: [
       {
-        groupName: 'Recomendadas',
+        groupName: 'Recommended',
         wallets: [
           metaMaskWallet,
           rainbowWallet,
           coinbaseWallet,
-          // Habilitar Coinbase Smart Wallet (opcional)
+          // Enable Coinbase Smart Wallet (optional)
           // { ...coinbaseWallet, preference: 'smartWalletOnly' },
         ],
       },
       {
-        groupName: 'Populares',
+        groupName: 'Popular',
         wallets: [
           trustWallet,
           okxWallet,
@@ -74,7 +74,7 @@ export const getWalletConfig = () => {
         ],
       },
       {
-        groupName: 'Otras opciones',
+        groupName: 'Other options',
         wallets: [
           bitgetWallet,
           tokenPocketWallet,
@@ -87,11 +87,11 @@ export const getWalletConfig = () => {
       }
     ],
     
-    // Opciones adicionales
-    ssr: true, // Soporte para Server-Side Rendering
+    // Additional options
+    ssr: true, // Support for Server-Side Rendering
   });
 };
 
-// Exportar la configuración lista para usar
+// Export the ready-to-use configuration
 export const config = getWalletConfig();
 export default config;

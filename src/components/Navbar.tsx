@@ -10,7 +10,7 @@ import { Button } from "@heroui/button";
 import { Tooltip } from "@heroui/tooltip";
 import { Link as HeroUILink } from "@heroui/link";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { Sun, Moon, Github, User, Ticket } from "lucide-react";
+import { Sun, Moon, User, Ticket } from "lucide-react";
 import { useTheme } from '@/providers/themeProvider';
 import ConnectWalletButton from './ConectWalletButton';
 import Logo from './Logo';
@@ -106,19 +106,6 @@ const CustomNavbar: React.FC = () => {
             variant="solid"
             size="sm"
             radius="full"
-            as={HeroUILink}
-            href="https://github.com/example/heroui"
-            target="_blank"
-            className="min-w-8 w-8 h-8 border-default-200 mr-2"
-            aria-label="GitHub"
-          >
-            <Github size={18} />
-          </Button>
-          <Button 
-            isIconOnly
-            variant="solid"
-            size="sm"
-            radius="full"
             onClick={toggleTheme}
             className="min-w-8 w-8 h-8 border-default-200"
             aria-label="Toggle theme"
@@ -157,19 +144,6 @@ const CustomNavbar: React.FC = () => {
               <User size={18} className="text-purple-500" />
             </Button>
           </Tooltip>
-          <Button 
-            isIconOnly
-            variant="solid"
-            size="sm"
-            radius="full"
-            as={HeroUILink}
-            href="https://github.com/example/heroui"
-            target="_blank"
-            className="min-w-8 w-8 h-8 border-default-200"
-            aria-label="GitHub"
-          >
-            <Github size={18} />
-          </Button>
           <Button 
             isIconOnly
             variant="ghost"

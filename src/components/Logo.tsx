@@ -1,5 +1,4 @@
 import React from 'react';
-import logoSvg from '/src/logo.svg';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
@@ -19,7 +18,7 @@ const Logo: React.FC<LogoProps> = ({ size = 'md', className = '' }) => {
   return (
     <div className={`flex items-center ${className}`}>
       <img 
-        src={logoSvg}
+        src="/MegaLuckyLogo.png"
         alt="MegaLucky Logo" 
         style={{ height: `${height}px` }}
         className="mr-2"
@@ -27,7 +26,7 @@ const Logo: React.FC<LogoProps> = ({ size = 'md', className = '' }) => {
       <span 
         className={`${textSize} font-bold`}
         style={{ 
-          color: '#DD6EFB',
+          color: '#196539',
           fontFamily: 'Segoe TV Bold, Segoe UI, sans-serif',
           fontWeight: 'bold'
         }}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLottery } from "../../lib/hooks/useLottery"; // Ajusta la ruta según tu estructura
+import { useLottery } from "../../lib/hooks/useLottery"; // Adjust the path according to your structure
 
 const LotteryTestComponent = () => {
   const {

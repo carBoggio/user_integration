@@ -23,15 +23,15 @@ declare module "@react-types/shared" {
    chains: [megaEth, mainnet],
    transports: {
     [mainnet.id]: http(),
-    [megaEth.id]: http('https://carrot.megaeth.com/rpc'), // Añade transporte para megaEth
+    [megaEth.id]: http('https://carrot.megaeth.com/rpc'), // Add transport for megaEth
    },
  })
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false, // Desactivar refresco al cambiar de ventana (opcional)
-      retry: 1, // Intentar una vez más si falla una consulta (opcional)
+      refetchOnWindowFocus: false, // Disable refresh when changing window (optional)
+      retry: 1, // Try once more if a query fails (optional)
     },
   },
 });

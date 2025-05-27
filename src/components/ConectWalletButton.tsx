@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Button, Spinner, Card } from "@heroui/react";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 
-// Función para acortar la dirección de la wallet
+// Function to shorten the wallet address
 const shortenAddress = (address: string): string => {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
 
 const ConnectWalletButton: React.FC = () => {
-  // Estado para la UI
+  // State for the UI
   const [connectionTimeout, setConnectionTimeout] = useState(false);
   const [showHelper, setShowHelper] = useState(false);
 
@@ -24,12 +24,12 @@ const ConnectWalletButton: React.FC = () => {
           mounted,
           connectModalOpen
         }) => {
-          // Estado de conexión
+          // Connection state
           const ready = mounted;
           const connected = ready && account && chain;
           const connecting = connectModalOpen;
           
-          // Efecto para detectar tiempo de conexión
+          // Effect to detect connection time
           useEffect(() => {
             let timeoutId: NodeJS.Timeout;
             let helperTimeoutId: NodeJS.Timeout;
@@ -37,11 +37,11 @@ const ConnectWalletButton: React.FC = () => {
             if (connecting) {
               timeoutId = setTimeout(() => {
                 setConnectionTimeout(true);
-              }, 8000); // Mostrar mensaje después de 8 segundos
+              }, 8000); // Show message after 8 seconds
               
               helperTimeoutId = setTimeout(() => {
                 setShowHelper(true);
-              }, 15000); // Mostrar ayuda después de 15 segundos
+              }, 15000); // Show help after 15 seconds
             } else {
               setConnectionTimeout(false);
               setShowHelper(false);
@@ -78,19 +78,19 @@ const ConnectWalletButton: React.FC = () => {
                         }}
                         disableRipple
                       >
-                        {/* Borde con gradiente multicolor */}
+                        {/* Multicolor gradient border */}
                         <span className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-pink-500 via-blue-500 to-blue-500"></span>
                         
-                        {/* Fondo interior que cambia según el tema */}
+                        {/* Inner background that changes according to theme */}
                         <span className="absolute inset-[1px] -z-10 rounded-full dark:bg-black bg-white"></span>
                         
-                        {/* Contenido del botón */}
+                        {/* Button content */}
                         <div className="flex items-center gap-2 px-4 py-2">
                           {connecting ? (
                             <>
                               <Spinner size="sm" color="secondary" />
-                              <span title={connectionTimeout ? "Verifica que tu wallet esté abierta y desbloqueada" : "Esperando confirmación de la wallet..."}>
-                                {connectionTimeout ? "Verifica tu wallet" : "Conectando..."}
+                              <span title={connectionTimeout ? "Check that your wallet is open and unlocked" : "Waiting for wallet confirmation..."}>
+                                {connectionTimeout ? "Check your wallet" : "Connecting..."}
                               </span>
                             </>
                           ) : (
@@ -111,7 +111,7 @@ const ConnectWalletButton: React.FC = () => {
                       className="relative overflow-hidden border-0 font-medium"
                       disableRipple
                     >
-                      <span className="text-sm">Red incorrecta</span>
+                      <span className="text-sm">Wrong network</span>
                     </Button>
                   );
                 }
@@ -127,15 +127,15 @@ const ConnectWalletButton: React.FC = () => {
                     }}
                     disableRipple
                   >
-                    {/* Borde con gradiente multicolor */}
+                    {/* Multicolor gradient border */}
                     <span className="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-pink-500 via-blue-500 to-blue-500"></span>
                     
-                    {/* Fondo interior que cambia según el tema */}
+                    {/* Inner background that changes according to theme */}
                     <span className="absolute inset-[1px] -z-10 rounded-full dark:bg-black bg-white"></span>
                     
-                    {/* Contenido del botón cuando está conectado */}
+                    {/* Button content when connected */}
                     <div className="flex items-center gap-2 px-4 py-1">
-                      {/* Pequeño indicador de cadena */}
+                      {/* Small chain indicator */}
                       {chain.hasIcon && (
                         <div className="w-3 h-3 rounded-full overflow-hidden">
                           {chain.iconUrl && (
@@ -148,14 +148,14 @@ const ConnectWalletButton: React.FC = () => {
                         </div>
                       )}
                       
-                      {/* Avatar: Usamos el ENS avatar si existe, o generamos uno basado en la dirección */}
+                      {/* Avatar: We use the ENS avatar if it exists, or generate one based on the address */}
                       <img
                         src={account.ensAvatar || `https://effigy.im/a/${account.address}.svg`}
                         alt="Avatar"
                         className="w-6 h-6 rounded-full border-1 border-white"
                       />
                       
-                      {/* Nombre y balance */}
+                      {/* Name and balance */}
                       <div className="flex flex-col">
                         <span className="text-sm font-medium">
                           {account.displayName || shortenAddress(account.address)}
@@ -175,16 +175,16 @@ const ConnectWalletButton: React.FC = () => {
         }}
       </ConnectButton.Custom>
 
-      {/* Mostrar guía de ayuda si la conexión tarda demasiado */}
+      {/* Show help guide if connection takes too long */}
       {showHelper && (
         <Card className="mt-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 text-sm">
-          <h1 className="font-medium text-yellow-800 dark:text-yellow-200 mb-2">Consejos para conectar tu wallet:</h1>
+          <h1 className="font-medium text-yellow-800 dark:text-yellow-200 mb-2">Tips to connect your wallet:</h1>
           <ul className="list-disc pl-5 text-yellow-700 dark:text-yellow-300 space-y-1">
-            <li>Asegúrate de que tu extensión MetaMask esté desbloqueada</li>
-            <li>Revisa si hay una notificación pendiente en tu wallet</li>
-            <li>Si usas una wallet móvil, escanea el código QR correctamente</li>
-            <li>A veces la ventana de MetaMask se abre detrás del navegador</li>
-            <li>Intenta actualizar la página y conectar nuevamente</li>
+            <li>Make sure your MetaMask extension is unlocked</li>
+            <li>Check if there's a pending notification in your wallet</li>
+            <li>If using a mobile wallet, scan the QR code correctly</li>
+            <li>Sometimes the MetaMask window opens behind the browser</li>
+            <li>Try refreshing the page and connecting again</li>
           </ul>
         </Card>
       )}
