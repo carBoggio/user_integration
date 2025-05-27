@@ -8,7 +8,7 @@ import { NavbarMenuItem } from "@heroui/navbar";
 import { NavbarMenuToggle } from "@heroui/navbar";
 import { Button } from "@heroui/button";
 import { Tooltip } from "@heroui/tooltip";
-import { Link as HeroUILink } from "@heroui/link";
+
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { Sun, Moon, User, Ticket } from "lucide-react";
 import { useTheme } from '@/providers/themeProvider';

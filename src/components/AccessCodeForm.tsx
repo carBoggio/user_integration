@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import { Button, Input } from "@heroui/react";
 import { isValidCode, saveAccess } from '@/utils/accessCodes';
 
 const AccessCodeForm: React.FC = () => {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+ 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
