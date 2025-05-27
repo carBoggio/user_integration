@@ -8,9 +8,10 @@ import { NavbarMenuItem } from "@heroui/navbar";
 import { NavbarMenuToggle } from "@heroui/navbar";
 import { Button } from "@heroui/button";
 import { Tooltip } from "@heroui/tooltip";
+import { Link as HeroUILink } from "@heroui/link";
 
 import { Link as RouterLink, useNavigate } from "react-router-dom";
-import { Sun, Moon, User, Ticket } from "lucide-react";
+import { Sun, Moon, Github, User, Ticket } from "lucide-react";
 import { useTheme } from '@/providers/themeProvider';
 import ConnectWalletButton from './ConectWalletButton';
 import Logo from './Logo';
@@ -101,6 +102,21 @@ const CustomNavbar: React.FC = () => {
               <User size={18} className="text-purple-500" />
             </Button>
           </Tooltip>
+          <Tooltip content="GitHub">
+            <Button 
+              isIconOnly
+              variant="solid"
+              size="sm"
+              radius="full"
+              as={HeroUILink}
+              href="https://github.com/orgs/MegaLucky-proyect/"
+              target="_blank"
+              className="min-w-8 w-8 h-8 border-default-200 mr-2"
+              aria-label="GitHub"
+            >
+              <Github size={18} />
+            </Button>
+          </Tooltip>
           <Button 
             isIconOnly
             variant="solid"
@@ -142,6 +158,21 @@ const CustomNavbar: React.FC = () => {
               aria-label="User Profile"
             >
               <User size={18} className="text-purple-500" />
+            </Button>
+          </Tooltip>
+          <Tooltip content="GitHub">
+            <Button 
+              isIconOnly
+              variant="solid"
+              size="sm"
+              radius="full"
+              as={HeroUILink}
+              href="https://github.com/orgs/MegaLucky-proyect/"
+              target="_blank"
+              className="min-w-8 w-8 h-8 border-default-200"
+              aria-label="GitHub"
+            >
+              <Github size={18} />
             </Button>
           </Tooltip>
           <Button 
